@@ -103,6 +103,23 @@ def check(browser, url, width, errors, renders, is_file):
     a(not state["engineLoadedEarly"], "sql.js was loaded on page load")
     a(not any("sql-asm" in u for u in requests), "sql.js requested before the first click")
 
+    # The hero link lands on Experiment 0, below the sticky header, without running anything.
+    a(page.locator("#hero-try").inner_text().strip() == "Try the SQL check" and page.locator("#hero-try").get_attribute("href") == "#opening-experiment", "hero link")
+    page.locator("#hero-try").click()
+    page.wait_for_timeout(600)
+    landed = page.evaluate("() => { const h = document.getElementById('site-header').getBoundingClientRect().bottom; const t = document.getElementById('opening-experiment').getBoundingClientRect().top; return {h, t}; }")
+    a(landed["t"] >= landed["h"], "experiment top (%.0f) hidden under the header (%.0f) after the hero link" % (landed["t"], landed["h"]))
+    a("Not run yet" in page.locator("#opening-result").inner_text() and page.locator(".code-change").count() == 0 and page.locator("#fix-opening").is_disabled(), "hero link ran or revealed the experiment")
+    page.evaluate("() => window.scrollTo(0, 0)")
+    # Mobile menu: Escape closes it, aria-expanded false, focus back on the button.
+    if page.locator("#menu-btn").is_visible():
+        page.locator("#menu-btn").click()
+        a(not page.locator("#mobile-menu").is_hidden() and page.locator("#menu-btn").get_attribute("aria-expanded") == "true", "mobile menu opens")
+        page.keyboard.press("Escape")
+        a(page.locator("#mobile-menu").is_hidden() and page.locator("#menu-btn").get_attribute("aria-expanded") == "false", "Escape closes the mobile menu")
+        a(page.evaluate("() => document.activeElement && document.activeElement.id === 'menu-btn'"), "focus returns to the menu button after Escape")
+    a(page.locator(".control .state").count() == 7, "every control card carries its state label")
+
     # Experiment 0
     a("SQL" in page.locator("#code-state").inner_text(), "SQL code label")
     a(page.locator("#fix-opening").is_disabled(), "correction revealed before a run")
