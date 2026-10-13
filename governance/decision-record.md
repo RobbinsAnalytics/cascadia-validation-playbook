@@ -284,6 +284,52 @@ corrections, which hides the step where fixing one thing changes the count.
 **Carried by:** `docs/assets/dispatch-code.js`; `docs/assets/playbook.js`;
 `src/build_page.py`; `checks/check_page.py`.
 
+## D15 · Polish pass after the external review (Build Brief 2, 2026-10-12)
+
+Trigger: an external review of the live page the evening it went live, and
+Cowork's post-publish link check, folded into Build Brief 2. Presentation
+and provenance only; no SQL, expected ID, scenario input, outcome or
+author-block text changed, and Experiment 0 keeps its three-step flow (D14).
+Aaron approved the page at Brief 1's gate and asked that release steps after
+that approval not return to him, so this pass published on passing checks.
+
+- **Provenance line.** The footer named Control Tower, whose register link
+  sits in `evidence/source-links.md` but is cited by no note on the page; the
+  notes cite Early Warning and Matter Ledger. Now "Real evidence pinned to
+  Early Warning e7d1337 and Matter Ledger 6a2f90a".
+- **Status.** The lime card's Status row read "Proposed method", which could
+  be read as "none of this was done". Now "Documented practice + proposed
+  roles"; the caption under the author account is unchanged and still says
+  which parts are proposed.
+- **Experiment 0 findable from the hero.** A Felix text-and-disc link, "Try
+  the SQL check", arrow pointing down, targets `#opening-experiment`, which
+  takes `scroll-margin-top: 5.5rem` so its eyebrow clears the sticky header.
+  Following it runs nothing; the gate asserts the initial state after the
+  click at every width.
+- **Mobile menu.** Escape closes the open menu, sets `aria-expanded="false"`
+  and returns focus to the button. The markup and script were copied from
+  Early Warning's template in Phase 1; the fix is in this repo's copy only
+  and is a build-forward candidate for the shared template.
+- **Panel wording (Brief 1 findings 7 and 16, left for Aaron, kept in the
+  brief as handed over).** The decision-rule pair's evidence line now reads
+  "Orders A102 and A105 appear once each." Each control card carries a mono
+  ON/OFF label beside its checkbox, so the state is text and not only a
+  checkmark; card copy is unchanged.
+- **Fonts (Brief 2 item 7).** Checked, not changed: all five families the
+  page requests are used. Inter is `--font-sans` (body), Inter Tight
+  `--font-display`, Fraunces `--font-serif`, JetBrains Mono `--font-mono` in
+  the compiled Felix CSS, and Source Serif 4 is the Cascadia voice inside the
+  two exhibits (`--cz-serif`). The brief's "Felix uses three" was wrong; Felix
+  1.3 names four. The runtime font request remains an inherited collision.
+
+The exhibits' content did not change (one evidence-line word and a label on
+Felix controls outside the frames), so the chart review takes the gate and a
+link, not a new panel.
+
+**Carried by:** `docs/template.html`; `docs/assets/playbook.css`;
+`src/build_page.py`; `checks/check_page.py` (the hero-link and Escape
+checks); tag `v1.1`.
+
 ---
 
 ## Published · 2026-10-12

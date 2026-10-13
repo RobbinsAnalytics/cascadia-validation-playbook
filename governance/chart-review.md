@@ -262,6 +262,16 @@ PREFERENCE SCORE: 0
 VERDICT: SHIP, with finding 16 listed for the owner
 ```
 
+## Revision 2026-10-12 (polish pass, D15): the gate and a link, no new panel
+
+After the external review of the live page, finding 7's wording ("Orders
+A102 and A105 appear once each.") and finding 16's remedy (a mono ON/OFF
+label on each control card) were applied. Neither changes what either
+exhibit says: one word in the V's detail panel, and labels on Felix controls
+outside the queue's frame. The behaviour gate re-ran clean at five widths
+and against the live page; the seats were not re-run. The two accepted
+dispositions above stand as recorded, with this note as their resolution.
+
 ## 3 · The author's own findings, before the panel
 
 Recorded in `governance/pre-panel-notes.md` (12 suspicions, three withdrawn
