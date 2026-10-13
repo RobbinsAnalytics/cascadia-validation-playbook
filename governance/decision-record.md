@@ -269,8 +269,17 @@ gate's assertions, the README's generated opening text, `CLAUDE.md`. Not
 changed: the scenario, the expected IDs, the manuscript, the exhibits, the
 panel record (Experiment 0 is outside its scope).
 
+*Amended the same day, also at the gate:* the two corrections are applied
+**one click at a time**, each click a rerun. The first click fixes the
+boundary only and the check still fails, now with three rows (A102, A105,
+A105); the second adds GROUP BY and passes. Three runs stay in the history,
+so the reader sees that one correction exposed the second defect rather
+than both vanishing at once. `dispatch-code.js` carries three strings
+(`buggy`, `partial`, `fixed`), each derived from the last by one edit.
+
 *Counterfactual:* keep one defect, or show GROUP BY without making it a
-defect, which teaches nothing the reader has to find.
+defect, which teaches nothing the reader has to find; or one click for both
+corrections, which hides the step where fixing one thing changes the count.
 
 **Carried by:** `docs/assets/dispatch-code.js`; `docs/assets/playbook.js`;
 `src/build_page.py`; `checks/check_page.py`.

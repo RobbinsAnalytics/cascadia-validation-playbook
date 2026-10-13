@@ -8,11 +8,11 @@
       "scrollWidth": 320,
       "minExhibitFont": 12,
       "minLabFont": 12,
-      "openingStates": 3,
+      "openingStates": 4,
       "queueCases": 8,
       "checkerCases": 4,
       "releaseCases": 32,
-      "sqlExecutionsObserved": 2
+      "sqlExecutionsObserved": 3
     },
     {
       "mode": "http",
@@ -20,11 +20,11 @@
       "scrollWidth": 390,
       "minExhibitFont": 12,
       "minLabFont": 12,
-      "openingStates": 3,
+      "openingStates": 4,
       "queueCases": 8,
       "checkerCases": 4,
       "releaseCases": 32,
-      "sqlExecutionsObserved": 2
+      "sqlExecutionsObserved": 3
     },
     {
       "mode": "http",
@@ -32,11 +32,11 @@
       "scrollWidth": 768,
       "minExhibitFont": 12,
       "minLabFont": 12,
-      "openingStates": 3,
+      "openingStates": 4,
       "queueCases": 8,
       "checkerCases": 4,
       "releaseCases": 32,
-      "sqlExecutionsObserved": 2
+      "sqlExecutionsObserved": 3
     },
     {
       "mode": "http",
@@ -44,11 +44,11 @@
       "scrollWidth": 1050,
       "minExhibitFont": 12,
       "minLabFont": 12,
-      "openingStates": 3,
+      "openingStates": 4,
       "queueCases": 8,
       "checkerCases": 4,
       "releaseCases": 32,
-      "sqlExecutionsObserved": 2
+      "sqlExecutionsObserved": 3
     },
     {
       "mode": "http",
@@ -56,11 +56,11 @@
       "scrollWidth": 1440,
       "minExhibitFont": 12,
       "minLabFont": 12,
-      "openingStates": 3,
+      "openingStates": 4,
       "queueCases": 8,
       "checkerCases": 4,
       "releaseCases": 32,
-      "sqlExecutionsObserved": 2
+      "sqlExecutionsObserved": 3
     },
     {
       "mode": "file",
@@ -68,11 +68,11 @@
       "scrollWidth": 390,
       "minExhibitFont": 12,
       "minLabFont": 12,
-      "openingStates": 3,
+      "openingStates": 4,
       "queueCases": 8,
       "checkerCases": 4,
       "releaseCases": 32,
-      "sqlExecutionsObserved": 2
+      "sqlExecutionsObserved": 3
     },
     {
       "mode": "file",
@@ -80,11 +80,11 @@
       "scrollWidth": 1440,
       "minExhibitFont": 12,
       "minLabFont": 12,
-      "openingStates": 3,
+      "openingStates": 4,
       "queueCases": 8,
       "checkerCases": 4,
       "releaseCases": 32,
-      "sqlExecutionsObserved": 2
+      "sqlExecutionsObserved": 3
     }
   ],
   "errors": [],

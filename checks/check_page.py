@@ -116,27 +116,40 @@ def check(browser, url, width, errors, renders, is_file):
     a(page.locator("#opening-result>strong").inner_text() == "A105 · A105", "actual defective output (two rows, same count as expected)")
     a(page.locator(".code-change").count() == 1, "only the boundary line is marked in the defective state; a missing clause has no line")
     a(page.evaluate("() => document.getElementById('opening-code').innerText.replace(/\\s/g,'')===globalThis.DispatchExample.buggy.replace(/\\s/g,'')"), "displayed defective code differs from the executed string")
-    a(page.evaluate("() => DispatchExample.buggy.replace('age_hours > 48','age_hours >= 48').replace('FROM eligible_orders\\nORDER BY order_id;','FROM eligible_orders\\nGROUP BY order_id\\nORDER BY order_id;')===DispatchExample.fixed"), "correction changes more than the boundary operator and the GROUP BY clause")
+    a(page.evaluate("() => DispatchExample.buggy.replace('age_hours > 48','age_hours >= 48')===DispatchExample.partial && DispatchExample.partial.replace('FROM eligible_orders\\nORDER BY order_id;','FROM eligible_orders\\nGROUP BY order_id\\nORDER BY order_id;')===DispatchExample.fixed"), "the two corrections change more than the operator and the GROUP BY clause")
     a(page.evaluate("() => DispatchExample.buggy.split('\\n')[6].trim()==='AND age_hours > 48'"), "line 7 is not the boundary line")
+    a(page.locator("#fix-opening").inner_text() == "Correct the boundary and rerun" and not page.locator("#fix-opening").is_disabled(), "first correction offered after a run")
     # Record what SQLite actually executes from here on (the engine is cached by sql.js).
     page.evaluate("async () => { const e = await initSqlJs(); window.__sql = []; const exec = e.Database.prototype.exec; e.Database.prototype.exec = function (q, ...r) { if (q.startsWith('WITH eligible_orders')) window.__sql.push(q); return exec.call(this, q, ...r); }; }")
+    # First correction: the boundary only. Still fails, now with three rows.
     page.locator("#fix-opening").click()
-    page.wait_for_function("() => document.querySelector('#opening-result').innerText.includes('PASS')")
-    a("PASS \u00b7 selected cases match" in page.locator("#opening-result").inner_text(), "correction passes the known answer")
-    a(page.locator("#opening-result>strong").inner_text() == "A102 \u00b7 A105", "corrected IDs")
-    a(page.locator(".opening-history li").count() == 2, "original failure not retained")
-    a(page.locator(".code-change").count() == 2, "both corrected lines marked (boundary and GROUP BY)")
-    a(page.locator("#fix-opening").is_disabled() and page.locator("#fix-opening").inner_text() == "Correction applied", "correction button state after fix")
+    page.wait_for_function("() => document.querySelector('#opening-result').innerText.includes('A105 repeated') && document.querySelectorAll('.opening-history li').length === 2")
+    a(page.locator("#opening-result>strong").inner_text() == "A102 \u00b7 A105 \u00b7 A105", "boundary-only output is A102, A105, A105")
+    a("FAIL \u00b7 A105 repeated" in page.locator("#opening-result").inner_text(), "boundary-only run still fails on the repeated row")
+    a(page.locator(".code-change").count() == 1 and "BOUNDARY CORRECTED" in page.locator("#code-state").inner_text(), "boundary-only state marks line 7 alone")
+    a("exposed the second defect" in page.locator("#opening-lesson").inner_text(), "boundary-only lesson")
+    a(page.evaluate("() => document.getElementById('opening-code').innerText.replace(/\\s/g,'')===globalThis.DispatchExample.partial.replace(/\\s/g,'')"), "displayed boundary-corrected code differs from the executed string")
+    a(page.locator("#fix-opening").inner_text() == "Add the GROUP BY and rerun" and not page.locator("#fix-opening").is_disabled(), "second correction offered")
     if renders and not is_file and width in (390, 1440):
         page.add_style_tag(content="#site-header{position:static !important}")
+        page.locator("#opening-experiment").screenshot(path=str(RENDERS / ("opening-boundary-%d.png" % width)))
+    # Second correction: GROUP BY. Passes.
+    page.locator("#fix-opening").click()
+    page.wait_for_function("() => document.querySelector('#opening-result').innerText.includes('PASS')")
+    a("PASS \u00b7 selected cases match" in page.locator("#opening-result").inner_text(), "both corrections pass the known answer")
+    a(page.locator("#opening-result>strong").inner_text() == "A102 \u00b7 A105", "corrected IDs")
+    a(page.locator(".opening-history li").count() == 3, "all three runs retained")
+    a(page.locator(".code-change").count() == 2, "both corrected lines marked (boundary and GROUP BY)")
+    a(page.locator("#fix-opening").is_disabled() and page.locator("#fix-opening").inner_text() == "Corrections applied", "correction button state after both fixes")
+    if renders and not is_file and width in (390, 1440):
         page.locator("#opening-experiment").screenshot(path=str(RENDERS / ("opening-fixed-%d.png" % width)))
     a(page.evaluate("() => document.getElementById('opening-code').innerText.replace(/\\s/g,'')===globalThis.DispatchExample.fixed.replace(/\\s/g,'')"), "displayed corrected code differs from the executed string")
     page.locator("#reset-opening").click()
-    a("Not run yet" in page.locator("#opening-result").inner_text() and page.locator(".code-change").count() == 0, "opening reset")
+    a("Not run yet" in page.locator("#opening-result").inner_text() and page.locator(".code-change").count() == 0 and page.locator("#fix-opening").inner_text() == "Correct the boundary and rerun", "opening reset")
     page.locator("#run-opening").click()
     page.wait_for_function("() => document.querySelector('#opening-result').innerText.includes('FAIL')")
-    executed = page.evaluate("() => [window.__sql, DispatchExample.fixed, DispatchExample.buggy]")
-    a(executed[0] == [executed[1], executed[2]], "displayed queries are not what SQLite executed")
+    executed = page.evaluate("() => [window.__sql, DispatchExample.partial, DispatchExample.fixed, DispatchExample.buggy]")
+    a(executed[0] == [executed[1], executed[2], executed[3]], "displayed queries are not what SQLite executed")
     if renders and not is_file and width in (390, 1440):
         page.locator("#opening-experiment").screenshot(path=str(RENDERS / ("opening-failed-%d.png" % width)))
     page.locator("#reset-opening").click()
@@ -213,7 +226,7 @@ def check(browser, url, width, errors, renders, is_file):
             page.locator("#reset-queue").click()
     page.close()
     return {"mode": "file" if is_file else "http", "width": width, "scrollWidth": state["scrollWidth"], "minExhibitFont": state["minExhibitFont"], "minLabFont": state["minLabFont"],
-            "openingStates": 3, "queueCases": 8, "checkerCases": 4, "releaseCases": 32, "sqlExecutionsObserved": 2}
+            "openingStates": 4, "queueCases": 8, "checkerCases": 4, "releaseCases": 32, "sqlExecutionsObserved": 3}
 
 
 def main():

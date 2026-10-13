@@ -20,7 +20,10 @@
   const chips = values => values.map(id => `<span class="order-chip ${scenario.expectedIds.includes(id) ? '' : 'unexpected'}">${id}${scenario.expectedIds.includes(id) ? '' : ' ×'}</span>`).join('') || '<span>No orders</span>';
 
   /* ---------- Experiment 0: the code check ---------- */
-  let openingFixed = false, openingRuns = [], sqlEngine = null, sqlLoading = null, engineFailed = false;
+  // openingStage: 0 = defective query, 1 = boundary corrected, 2 = GROUP BY added. Each
+  // correction is one click and one rerun, so the history shows what each fix changed.
+  let openingStage = 0, openingRuns = [], sqlEngine = null, sqlLoading = null, engineFailed = false;
+  const QUERIES = () => [globalThis.DispatchExample.buggy, globalThis.DispatchExample.partial, globalThis.DispatchExample.fixed];
   const runButton = $('run-opening');
   const engineSrc = runButton.dataset.engine;
 
@@ -39,14 +42,14 @@
   }
 
   function renderOpening(loading) {
-    const query = openingFixed ? globalThis.DispatchExample.fixed : globalThis.DispatchExample.buggy;
-    // After a run, the boundary line is marked in both states; the GROUP BY line exists only in the
-    // corrected state. In the defective state the missing clause has no line to mark.
+    const query = QUERIES()[openingStage];
+    // After a run, the boundary line is marked in every state; the GROUP BY line exists only once it
+    // has been added. Before that, the missing clause has no line to mark.
     $('opening-code').innerHTML = query.split('\n').map(line => `<span class="code-line ${openingRuns.length && (line.includes('age_hours') || line.startsWith('GROUP BY')) ? 'code-change' : ''}">${escapeCode(line) || ' '}</span>`).join('');
-    $('code-state').textContent = openingFixed ? 'CORRECTED IMPLEMENTATION / SQL' : 'IMPLEMENTATION / SQL';
-    document.querySelector('.code-pane').classList.toggle('corrected', openingFixed);
-    $('fix-opening').disabled = !openingRuns.length || openingFixed || !!loading || engineFailed;
-    $('fix-opening').textContent = openingFixed ? 'Correction applied' : 'Correct and rerun';
+    $('code-state').textContent = ['IMPLEMENTATION / SQL', 'BOUNDARY CORRECTED / SQL', 'CORRECTED IMPLEMENTATION / SQL'][openingStage];
+    document.querySelector('.code-pane').classList.toggle('corrected', openingStage > 0);
+    $('fix-opening').disabled = !openingRuns.length || openingStage === 2 || !!loading || engineFailed;
+    $('fix-opening').textContent = ['Correct the boundary and rerun', 'Add the GROUP BY and rerun', 'Corrections applied'][openingStage];
     runButton.disabled = !!loading || engineFailed;
     runButton.setAttribute('aria-busy', loading ? 'true' : 'false');
     runButton.textContent = loading ? 'Loading the SQL engine…' : openingRuns.length ? 'Run the check again' : 'Run the known-answer check';
@@ -60,15 +63,24 @@
       return;
     }
     const latest = openingRuns.at(-1);
+    const verdict = latest.pass ? '✓ PASS · selected cases match' : latest.stage === 0 ? '× FAIL · same count, wrong orders' : '× FAIL · A105 repeated';
+    const explain = latest.pass
+      ? '48 ≥ 48 is true, and GROUP BY collapses the repeated row. A102 and A105 appear once each.'
+      : latest.stage === 0
+        ? '48 &gt; 48 is false, so A102 is excluded, and nothing collapses the repeated A105. Two rows match the expected count and not the expected IDs.'
+        : 'A102 now appears, but nothing collapses the repeated A105. Three rows against the expected two.';
+    const label = r => r.pass ? 'PASS, boundary and dedup corrected' : r.stage === 0 ? 'FAIL, A102 missing, A105 repeated' : 'FAIL, A105 repeated';
     result.className = 'opening-result ' + (latest.pass ? 'success' : 'warning');
-    result.innerHTML = `<span class="mini-label">ACTUAL OUTPUT</span><strong>${latest.actual.join(' · ') || 'No orders'}</strong><b>${latest.pass ? '✓ PASS · selected cases match' : '× FAIL · same count, wrong orders'}</b><p>${latest.pass ? '48 ≥ 48 is true, and GROUP BY collapses the repeated row. A102 now appears once, alongside A105.' : '48 &gt; 48 is false, so A102 is excluded, and nothing collapses the repeated A105. Two rows match the expected count and not the expected IDs.'}</p><ol class="opening-history" aria-label="Runs in this experiment">${openingRuns.map((r, i) => `<li>Run ${i + 1}: ${r.pass ? 'PASS, boundary and dedup corrected' : 'FAIL, A102 missing, A105 repeated'}</li>`).join('')}</ol>`;
+    result.innerHTML = `<span class="mini-label">ACTUAL OUTPUT</span><strong>${latest.actual.join(' · ') || 'No orders'}</strong><b>${verdict}</b><p>${explain}</p><ol class="opening-history" aria-label="Runs in this experiment">${openingRuns.map((r, i) => `<li>Run ${i + 1}: ${label(r)}</li>`).join('')}</ol>`;
     $('opening-lesson').textContent = latest.pass
-      ? 'The same expected answer rejects the defects and accepts the correction. That is evidence for these cases, not a guarantee about all code.'
-      : 'Line 7 is easy to inspect here, and the missing GROUP BY has no line to inspect at all. Now imagine 400 lines across six files, written overnight by an agent, and a review on Friday afternoon. The same known-answer check still catches both errors.';
+      ? 'The same expected answer rejects both defects and accepts the corrections. That is evidence for these cases, not a guarantee about all code.'
+      : latest.stage === 0
+        ? 'Line 7 is easy to inspect here, and the missing GROUP BY has no line to inspect at all. Now imagine 400 lines across six files, written overnight by an agent, and a review on Friday afternoon. The same known-answer check still catches both errors.'
+        : 'One correction fixed the boundary and exposed the second defect: the count moved from two to three. A check that compares IDs and multiplicity says what remains.';
   }
 
   function executeOpening(engine) {
-    const query = openingFixed ? globalThis.DispatchExample.fixed : globalThis.DispatchExample.buggy;
+    const stage = openingStage, query = QUERIES()[stage];
     const db = new engine.Database();
     let actual;
     try {
@@ -78,7 +90,7 @@
     } finally { db.close(); }
     const expected = [...scenario.expectedIds].sort();
     const pass = actual.length === expected.length && actual.every((id, i) => id === expected[i]);
-    openingRuns.push({actual, pass});
+    openingRuns.push({actual, pass, stage});
     renderOpening();
   }
 
@@ -94,8 +106,8 @@
   }
 
   on('run-opening', 'click', runOpening);
-  on('fix-opening', 'click', () => { openingFixed = true; runOpening(); });
-  on('reset-opening', 'click', () => { openingFixed = false; openingRuns = []; renderOpening(); });
+  on('fix-opening', 'click', () => { if (openingStage < 2) { openingStage += 1; runOpening(); } });
+  on('reset-opening', 'click', () => { openingStage = 0; openingRuns = []; renderOpening(); });
 
   /* ---------- Experiment 1: the queue ---------- */
   const compute = ({boundary = true, canceled = true, unique = true} = {}) => {
