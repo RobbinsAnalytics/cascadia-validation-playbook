@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Validating AI-Assisted Analytics - Robbins Analytics</title>
+<meta name="description" content="How can you be confident in code you did not read or write in full? One invented dispatch rule, a known answer specified before the code, and four experiments in the browser that show what a check adds to reading.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Validating AI-Assisted Analytics">
+<meta property="og:description" content="How can you be confident in code you did not read or write in full? One invented dispatch rule, a known answer specified before the code, and four experiments in the browser that show what a check adds to reading.">
+<meta property="og:image" content="https://www.robbinsanalytics.com/assets/thumb-validation-playbook.png">
+<meta property="og:url" content="https://www.robbinsanalytics.com/cascadia-validation-playbook/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.robbinsanalytics.com/assets/thumb-validation-playbook.png">
+<link rel="canonical" href="https://www.robbinsanalytics.com/cascadia-validation-playbook/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<!-- Felix 1.3 / directive 6b, as cascadia-early-warning does it (its D14): the four Felix families from
+     Google Fonts, plus Source Serif 4, the serif VIZ-PRINCIPLES names for the voice inside a chart.
+     A recorded collision: every other asset on this page is local. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700&family=Fraunces:ital,wght@1,400&family=JetBrains+Mono:wght@400&family=Source+Serif+4:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/felix.css">
+<link rel="stylesheet" href="assets/playbook.css">
+</head>
+<body class="min-h-screen">
+
+<script id="scenario-data" type="application/json">{"scenario": {"label": "Harbor Dispatch", "kind": "Fictional teaching example. Deliberately selected cases, not operational evidence.", "minimumAgeHours": 48, "maximumSourceAgeHours": 2, "expectedIds": ["A102", "A105"], "rows": [{"id": "A101", "age": 47, "paid": true, "shipped": false, "canceled": false, "note": "One hour too early"}, {"id": "A102", "age": 48, "paid": true, "shipped": false, "canceled": false, "note": "Exactly at the boundary"}, {"id": "A103", "age": 72, "paid": true, "shipped": false, "canceled": true, "note": "Canceled, despite its age"}, {"id": "A104", "age": 60, "paid": true, "shipped": true, "canceled": false, "note": "Already shipped"}, {"id": "A105", "age": 60, "paid": true, "shipped": false, "canceled": false, "note": "Eligible order"}, {"id": "A105", "age": 60, "paid": true, "shipped": false, "canceled": false, "note": "Repeated copy of the same order"}]}, "pairs": [{"key": "use", "level": "Intended use", "promise": "Help staff review delayed orders", "check": "Owner tries the queue", "proof": "Can staff identify the right orders and decide what to investigate?", "owner": "Operations owner", "risk": "A correct list can still be used for an unapproved decision, such as automatic refunds.", "left": 1, "right": 7}, {"key": "rule", "level": "Decision rule", "promise": "Paid, unshipped, 48+ hours; not canceled", "check": "Compare with known answers", "proof": "A102 and A105 appear once each. Boundary, exclusion and duplicate cases have fixed expectations.", "owner": "Analytics lead", "risk": "The list can look plausible while dropping a required order or adding an ineligible one.", "left": 2, "right": 6}, {"key": "data", "level": "Data contract", "promise": "One order per ID; source age ≤ 2 hours", "check": "Check inputs and failure handling", "proof": "Repeated IDs collapse to one order. Old source data blocks the current release.", "owner": "Technical reviewer", "risk": "Duplicate rows inflate the queue, or an old list looks current.", "left": 3, "right": 5}]}</script>
+
+<header id="site-header" class="sticky top-0 z-50 border-b border-transparent bg-paper transition-[border-color,background-color] duration-300">
+  <div class="container-x flex h-[4.25rem] items-center justify-between">
+    <a class="group inline-flex items-center gap-2.5" href="https://www.robbinsanalytics.com/" aria-label="Robbins Analytics home">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" class="shrink-0">
+        <rect x="2" y="12" width="5" height="12" rx="2.5" fill="#12403c" opacity="0.55"/>
+        <rect x="10.5" y="7" width="5" height="17" rx="2.5" fill="#12403c" opacity="0.8"/>
+        <rect x="19" y="2" width="5" height="22" rx="2.5" fill="#12403c"/>
+      </svg>
+      <span class="font-display text-[1.3rem] leading-none tracking-tight whitespace-nowrap text-ink">
+        <span class="font-semibold">Robbins</span>
+        <span class="font-serif font-normal italic text-teal-2">Analytics</span><span class="text-teal-3">.</span>
+      </span>
+    </a>
+    <nav class="hidden items-center gap-3 md:flex" aria-label="Main">
+      <div class="flex items-center gap-0.5 rounded-full bg-white p-1">
+        <a class="rounded-full px-4 py-2 text-sm font-medium transition-colors text-ink-soft hover:bg-paper hover:text-ink" href="https://www.robbinsanalytics.com/">Home</a>
+        <a class="rounded-full px-4 py-2 text-sm font-medium transition-colors text-ink-soft hover:bg-paper hover:text-ink" href="https://www.robbinsanalytics.com/cascadia.html">Cascadia</a>
+        <a class="rounded-full px-4 py-2 text-sm font-medium transition-colors bg-ink text-white" href="#top" aria-current="page">Playbook</a>
+      </div>
+      <a class="group btn bg-ink !py-1.5 !pr-1.5 !pl-5 text-sm text-white hover:bg-teal" href="https://github.com/RobbinsAnalytics/cascadia-validation-playbook">
+        Repository
+        <span class="grid h-7 w-7 place-items-center rounded-full bg-lime text-ink transition-transform group-hover:-rotate-12" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 9 3M4 3h5v5"/></svg>
+        </span>
+      </a>
+    </nav>
+    <button id="menu-btn" class="-mr-2 grid h-11 w-11 place-items-center rounded-full text-ink md:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg class="menu-bars" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      <svg class="menu-x hidden" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 4l12 12M16 4 4 16"/></svg>
+    </button>
+  </div>
+  <div id="mobile-menu" class="border-t border-line bg-paper md:hidden" hidden>
+    <nav class="container-x flex max-h-[calc(100dvh-4.25rem)] flex-col gap-1 overflow-y-auto overscroll-contain py-4" aria-label="Mobile">
+      <a class="rounded-xl px-3 py-3 font-medium" href="https://www.robbinsanalytics.com/">Home</a>
+      <a class="rounded-xl px-3 py-3 font-medium" href="https://www.robbinsanalytics.com/cascadia.html">Cascadia</a>
+      <a class="rounded-xl px-3 py-3 font-medium bg-white" href="#top" aria-current="page">Playbook</a>
+      <a class="btn btn-dark mt-4 justify-center !py-3.5" href="https://github.com/RobbinsAnalytics/cascadia-validation-playbook">Repository
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5"/></svg>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- Felix 6.7: the figure-frame header, with the lime spec aside listing the six in-page anchors (Felix 7, Architecture) -->
+<header class="container-x pt-6 pb-10 sm:pt-10">
+  <div class="crop-marks relative px-5 py-8 sm:px-10 sm:py-12 lg:px-14">
+    <p class="absolute top-10 left-2 hidden rotate-180 font-mono text-[0.7rem] tracking-[0.22em] whitespace-nowrap text-ink-soft uppercase xl:block" style="writing-mode:vertical-rl">Fig. 15 / Playbook / Analytics validation</p>
+    <div class="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div class="min-w-0">
+        <a class="pill min-h-10 !px-4 transition-colors hover:border-ink" href="https://www.robbinsanalytics.com/cascadia.html">
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6H3M6 3 3 6l3 3"/></svg>
+          All Cascadia work
+        </a>
+        <div class="mt-8 flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.7rem] leading-none font-medium whitespace-nowrap border-[#f0d9ad] bg-[#fdf4e3] text-[#7a5210]">
+            <span class="relative flex h-1.5 w-1.5"><span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#d99a2b]"></span></span>
+            Playbook
+          </span>
+          <span class="font-mono text-[0.7rem] tracking-[0.16em] text-teal-2 uppercase">Analytics validation</span>
+        </div>
+        <h1 class="mt-5 font-display text-[clamp(2.6rem,1.4rem+4.6vw,5.4rem)] leading-[0.95] font-bold tracking-[-0.045em] text-ink">Validating AI-Assisted <span class="font-serif font-normal italic text-teal tracking-[-0.03em]">Analytics</span><span class="text-teal-3">.</span></h1>
+        <p class="mt-7 max-w-2xl text-lg leading-relaxed text-ink-soft sm:text-[1.2rem]">From requirements to evidence, with clear ownership at every step.</p>
+      </div>
+      <aside class="rounded-3xl bg-lime p-6 text-ink sm:p-7">
+        <div class="flex items-center justify-between border-b border-ink/80 pb-4">
+          <p class="font-display text-lg leading-tight font-bold tracking-tight uppercase">Playbook</p>
+          <span class="h-2.5 w-2.5 rounded-full bg-ink" aria-hidden="true"></span>
+        </div>
+        <dl>
+          <div class="flex items-baseline justify-between gap-4 border-b border-ink/25 py-3"><dt class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">Status</dt><dd class="text-right text-sm font-semibold">Proposed method</dd></div>
+          <div class="flex items-baseline justify-between gap-4 border-b border-ink/25 py-3"><dt class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">Example</dt><dd class="text-right text-sm font-semibold">Harbor Dispatch, invented</dd></div>
+          <div class="flex items-baseline justify-between gap-4 border-b border-ink/25 py-3"><dt class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">Experiments</dt><dd class="text-right text-sm font-semibold">Four, in the browser</dd></div>
+          <div class="flex items-baseline justify-between gap-4 border-b border-ink/25 py-3"><dt class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">Real evidence</dt><dd class="text-right text-sm font-semibold">Three pinned notes</dd></div>
+        </dl>
+        <ul class="mt-2">
+          <li><a class="group flex items-center justify-between gap-4 border-b border-ink py-3 text-sm font-semibold" href="#s1"><span>01 Promise and proof</span><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-lime transition-transform group-hover:-rotate-12" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6l3 3 3-3"/></svg></span></a></li>
+          <li><a class="group flex items-center justify-between gap-4 border-b border-ink py-3 text-sm font-semibold" href="#s2"><span>02 Where this comes from</span><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-lime transition-transform group-hover:-rotate-12" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6l3 3 3-3"/></svg></span></a></li>
+          <li><a class="group flex items-center justify-between gap-4 border-b border-ink py-3 text-sm font-semibold" href="#s3"><span>03 The queue</span><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-lime transition-transform group-hover:-rotate-12" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6l3 3 3-3"/></svg></span></a></li>
+          <li><a class="group flex items-center justify-between gap-4 border-b border-ink py-3 text-sm font-semibold" href="#s4"><span>04 A second agent</span><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-lime transition-transform group-hover:-rotate-12" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6l3 3 3-3"/></svg></span></a></li>
+          <li><a class="group flex items-center justify-between gap-4 border-b border-ink py-3 text-sm font-semibold" href="#s5"><span>05 The release gate</span><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-lime transition-transform group-hover:-rotate-12" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6l3 3 3-3"/></svg></span></a></li>
+          <li><a class="group flex items-center justify-between gap-4 border-b border-ink py-3 text-sm font-semibold" href="#s6"><span>06 Five commitments</span><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-lime transition-transform group-hover:-rotate-12" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6l3 3 3-3"/></svg></span></a></li>
+        </ul>
+      </aside>
+    </div>
+  </div>
+</header>
+
+<!-- Felix 6.5, the hook panel: the manuscript's question, then its answer -->
+<section class="container-x">
+  <div class="rounded-[1.75rem] bg-white p-6 sm:p-10">
+    <div class="flex items-center justify-between gap-4">
+      <span class="pill"><span class="h-1.5 w-1.5 rounded-full bg-teal-3" aria-hidden="true"></span>The question</span>
+      <span class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">One example, four experiments</span>
+    </div>
+    <div class="mt-6 max-w-4xl font-display text-[clamp(1.15rem,1rem+0.6vw,1.5rem)] leading-[1.5] font-medium tracking-[-0.01em] text-ink [&_p]:m-0"><p>“How can you be confident in code you did not read or write in full?”</p></div>
+    <div class="rich prose mt-5 max-w-[46rem]"><p>Confidence needs a trail of evidence: a clear requirement, an answer specified separately from the implementation, and a check that can expose a mistake. Reading code is part of that work. This small example shows what the check adds.</p></div>
+  </div>
+</section>
+
+<!-- Experiment 0 sits in the hook position, above the fold of the body -->
+<section class="container-x pt-6">
+  <div class="rounded-[1.75rem] bg-white p-5 sm:p-10">
+<figure class="lab code-lab" id="opening-experiment" aria-labelledby="opening-title"><div class="exhibit-heading"><div><span class="mini-label">EXPERIMENT 0 / INVENTED HARBOR DISPATCH CASE</span><h3 id="opening-title">Read the code. Then check the answer.</h3></div><button type="button" class="reset" id="reset-opening">Reset experiment ↺</button></div><p class="opening-rule"><b>The rule:</b> include paid, unshipped orders <strong>at least 48 hours old</strong>. Exclude cancellations and repeated IDs.</p><p class="code-invite">Inspect the code for a mismatch with that rule. Then run the check.</p><div class="code-layout"><div class="code-pane"><span class="mini-label" id="code-state">IMPLEMENTATION / SQL</span><pre aria-label="SQL query displayed and executed by this experiment"><code id="opening-code">WITH eligible_orders AS (
+    SELECT
+        order_id
+    FROM dispatch_orders
+    WHERE paid = 1
+      AND shipped = 0
+      AND age_hours &gt; 48
+      AND canceled = 0
+),
+unique_orders AS (
+    SELECT DISTINCT order_id
+    FROM eligible_orders
+)
+SELECT order_id FROM unique_orders
+ORDER BY order_id;</code></pre></div><div class="answer-pane"><span class="mini-label">EXPECTED / SPECIFIED SEPARATELY</span><strong>A102 · A105</strong><p>A102 is exactly 48 hours old. A105 is 60 hours old. Each belongs once.</p><div id="opening-result" class="opening-result" aria-live="polite"><b>Not run yet</b><p>The expected IDs are fixed before this implementation is checked.</p></div></div></div><div class="opening-actions"><button type="button" class="btn btn-primary" id="run-opening" data-engine="vendor/sql.js/sql-asm.js">Run the known-answer check</button><button type="button" class="btn btn-outline" id="fix-opening" disabled>Correct and rerun</button></div><p class="chart-limit" id="opening-lesson">The check compares order IDs and multiplicity, not just the total. Reading and testing supply different evidence.</p><details class="note"><summary>Inspect the six invented input rows</summary><div class="note-body"><div class="table-wrap"><table><thead><tr><th scope="col">Order</th><th scope="col">Age</th><th scope="col">State</th><th scope="col">Purpose</th></tr></thead><tbody><tr><td>A101</td><td>47 hours</td><td>Paid, unshipped</td><td>One hour too early</td></tr><tr><td>A102</td><td>48 hours</td><td>Paid, unshipped</td><td>Exactly at the boundary</td></tr><tr><td>A103</td><td>72 hours</td><td>Canceled</td><td>Canceled, despite its age</td></tr><tr><td>A104</td><td>60 hours</td><td>Shipped</td><td>Already shipped</td></tr><tr><td>A105</td><td>60 hours</td><td>Paid, unshipped</td><td>Eligible order</td></tr><tr><td>A105</td><td>60 hours</td><td>Paid, unshipped</td><td>Repeated copy of the same order</td></tr></tbody></table></div></div></details><div class="provenance" role="note" aria-label="Provenance"><span class="segs"><span class="seg">Harbor Dispatch</span><span class="seg">invented teaching cases</span><span class="seg">displayed code executes locally; expected IDs are separate from the implementation</span></span></div></figure>
+  </div>
+</section>
+
+<section class="container-x">
+  <div class="grid gap-12 py-16 lg:grid-cols-[14rem_minmax(0,1fr)]">
+    <aside class="hidden lg:block">
+      <div class="sticky top-24">
+        <nav aria-label="On this page" class="toc">
+          <p class="eyebrow">On this page</p>
+          <ul class="mt-4 space-y-1 border-l border-line">
+            <li><a class="-ml-px block border-l-2 py-1.5 pl-4 text-sm transition-colors border-transparent text-ink-soft hover:text-ink" href="#s1">01 Promise and proof</a></li>
+            <li><a class="-ml-px block border-l-2 py-1.5 pl-4 text-sm transition-colors border-transparent text-ink-soft hover:text-ink" href="#s2">02 Where this comes from</a></li>
+            <li><a class="-ml-px block border-l-2 py-1.5 pl-4 text-sm transition-colors border-transparent text-ink-soft hover:text-ink" href="#s3">03 The queue</a></li>
+            <li><a class="-ml-px block border-l-2 py-1.5 pl-4 text-sm transition-colors border-transparent text-ink-soft hover:text-ink" href="#s4">04 A second agent</a></li>
+            <li><a class="-ml-px block border-l-2 py-1.5 pl-4 text-sm transition-colors border-transparent text-ink-soft hover:text-ink" href="#s5">05 The release gate</a></li>
+            <li><a class="-ml-px block border-l-2 py-1.5 pl-4 text-sm transition-colors border-transparent text-ink-soft hover:text-ink" href="#s6">06 Five commitments</a></li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <div class="min-w-0 space-y-8">
+<article id="s1" class="section-article"><span class="ghost-numeral" aria-hidden="true">01</span><span class="pill"><span class="section-pill-bars" aria-hidden="true"><span style="height:5px"></span><span style="height:8px"></span><span style="height:11px"></span></span>The V</span><h2 class="section-heading">1. Pair every promise with proof</h2><div class="rich prose section-prose"><p>The missing order is one broken link in the V: “at least 48 hours” did not survive implementation. Read down the left to define the work, then up the right to check it. Each expected result traces to a requirement, not to the code being tested.</p></div><figure class="cz-exhibit v-exhibit" aria-labelledby="v-title"><div class="exhibit-heading"><div><span class="mini-label">THE V MODEL / ADAPTED FOR ANALYTICS</span><h3 id="v-title">Specify the promise. Plan its proof.</h3></div><span class="hint">Select a matching pair</span></div><div class="v-canvas"><div class="v-direction left">DEFINE <span>↓ before building</span></div><div class="v-direction right">CHECK <span>↑ after building</span></div><svg class="v-lines" aria-hidden="true"></svg><div class="v-row level-1"><button type="button" class="v-node define" data-pair="use" data-side="left" aria-pressed="false" aria-controls="v-detail"><span class="node-meta">1 / Intended use</span><b>Help staff review delayed orders</b></button><span class="v-middle">Each check traces<br>back to its promise</span><button type="button" class="v-node verify" data-pair="use" data-side="right" aria-pressed="false" aria-controls="v-detail"><span class="node-meta">7 / Intended use</span><b>Owner tries the queue</b></button></div><div class="v-row level-2"><button type="button" class="v-node define" data-pair="rule" data-side="left" aria-pressed="true" aria-controls="v-detail"><span class="node-meta">2 / Decision rule</span><b>Paid, unshipped, 48+ hours; not canceled</b></button><button type="button" class="v-node verify" data-pair="rule" data-side="right" aria-pressed="true" aria-controls="v-detail"><span class="node-meta">6 / Decision rule</span><b>Compare with known answers</b></button></div><div class="v-row level-3"><button type="button" class="v-node define" data-pair="data" data-side="left" aria-pressed="false" aria-controls="v-detail"><span class="node-meta">3 / Data contract</span><b>One order per ID; source age ≤ 2 hours</b></button><button type="button" class="v-node verify" data-pair="data" data-side="right" aria-pressed="false" aria-controls="v-detail"><span class="node-meta">5 / Data contract</span><b>Check inputs and failure handling</b></button></div><div class="v-row build-row"><div class="v-build"><span class="node-meta">4 / IMPLEMENTATION</span><b>Build the queue</b><span>AI agents work to the specification</span></div></div></div><div id="v-detail" class="v-detail" aria-live="polite"><b>Decision rule → known answers</b><p>A102 and A105 should appear once each.</p></div><figcaption>Solid arrows show the work sequence. Dashed links pair a requirement with its check. Define the expected evidence before coding; perform and review the checks afterward.</figcaption><div class="provenance" role="note" aria-label="Provenance"><span class="segs"><span class="seg">Harbor Dispatch</span><span class="seg">invented teaching cases</span><span class="seg">conceptual method; proposed roles</span><span class="seg" id="v-state"></span></span></div></figure></article>
+<article id="s2" class="section-article"><span class="ghost-numeral" aria-hidden="true">02</span><span class="pill"><span class="section-pill-bars" aria-hidden="true"><span style="height:5px"></span><span style="height:8px"></span><span style="height:11px"></span></span>Author account</span><h2 class="section-heading">2. Where this comes from and why it fits AI</h2><div class="author-panel grain"><div class="glow" aria-hidden="true"></div><p class="eyebrow-dark">Author account / first person</p><div class="author-account" data-voice="author"><p>I learned this at Philips, on Class III medical devices. The quality owner who signed off the software had not written it. They read the requirements and the checks tied to them, then took responsibility for acceptance. That is the V: accountability supported by evidence linked to requirements.</p><p>AI changed who sits in the V. At Philips, separation came from different people: an analyst wrote the requirements, a developer built, and a tester checked. I built my analytics portfolio using AI tools. When one person and a set of agents do all of it, I have to construct that separation deliberately. The operating model starts with expected answers before implementation, a second path that receives rules and raw cases without the first implementation, and an accountable owner who accepts the intended use.</p><p>AI also makes another implementation easier to produce. I can give a second agent the rules document and raw cases without the first implementation or output. The work that remains is mine: choosing cases that could fail, naming shared assumptions, reviewing the second path and reading any disagreement.</p><p>Humans still read code. The review split is explicit: I read SQL, configuration and tests, where the business rule is expressed and checked. An engineer reviews the Python internals, scaled to what a wrong number would cost. The accountable owner reads the requirement in their own words and the evidence against it, then decides whether to accept the result for that use.</p></div></div><p class="chart-limit author-caption"><strong>Proposed operating model:</strong> the review split and separate owner acceptance describe how the work should be organized, not completed portfolio sign-offs.</p><div class="ceremony"><h3>Same V, less ceremony</h3><div class="table-wrap"><table><thead><tr><th scope="col">Level</th><th scope="col">Regulated software (the V with full ceremony)</th><th scope="col">AI-assisted analytics (the same V)</th></tr></thead><tbody><tr><td>Intended use</td><td>Approved use statement</td><td>Owner question, scope and acceptance</td></tr><tr><td>Rule</td><td>Controlled requirements</td><td>Versioned rule and expected cases</td></tr><tr><td>Specification</td><td>Design record and traceability matrix</td><td>Data contract and requirement-to-test links</td></tr><tr><td>Code</td><td>Reviewed release baseline</td><td>Versioned implementation and assigned review</td></tr><tr><td>Second path</td><td>Separately developed check, where used</td><td>Second agent receives rules and raw cases</td></tr><tr><td>Sign-off</td><td>Recorded approval of a release</td><td>Explicit acceptance linked to the reviewed commit</td></tr></tbody></table></div><p class="chart-limit">The structure survived. The records moved into the repository. A commit identifies the version; the acceptance record names the decision and the owner.</p></div><div class="rich prose section-prose"><p>Verification asks whether the implementation meets its requirements. Validation asks whether the result is suitable for its intended use. A passing queue test does not authorize automatic refunds.</p></div></article>
+<article id="s3" class="section-article"><span class="ghost-numeral" aria-hidden="true">03</span><span class="pill"><span class="section-pill-bars" aria-hidden="true"><span style="height:5px"></span><span style="height:8px"></span><span style="height:11px"></span></span>Experiment 1</span><h2 class="section-heading">3. Remove a control and watch the queue change</h2><div class="rich prose section-prose"><p>Harbor Dispatch has six input rows representing five orders. Its specified answer is <strong>A102 and A105, once each</strong>. Change the controls and compare identities as well as totals.</p></div><figure class="lab" aria-labelledby="queue-title"><div class="exhibit-heading"><div><span class="mini-label">EXPERIMENT 1 / THE RULE</span><h3 id="queue-title">Two orders belong in this queue.</h3></div><button type="button" class="reset" id="reset-queue">Reset experiment ↺</button></div><div class="control-grid three"><label class="control"><input type="checkbox" id="include-boundary" checked><span><b>Include exactly 48 hours</b><small>Avoid changing “at least” to “more than”.</small></span></label><label class="control"><input type="checkbox" id="exclude-canceled" checked><span><b>Exclude canceled orders</b><small>Age alone does not make an order eligible.</small></span></label><label class="control"><input type="checkbox" id="unique-orders" checked><span><b>Collapse repeated IDs</b><small>Count orders, not input rows.</small></span></label></div><div class="preset-actions"><button type="button" class="text-button" id="remove-controls">Remove all three controls</button><button type="button" class="text-button" id="same-count">Show the same count with the wrong answer</button></div><div class="queue-comparison"><div class="expected-box"><span class="mini-label">SPECIFIED ANSWER</span><strong>2 orders</strong><span>A102 · A105</span></div><div class="actual-box" id="queue-result" aria-live="polite"></div></div><div class="cz-exhibit queue-exhibit"><div id="order-chart" role="group" aria-label="Each input row, its age and its queue decision"></div><p class="chart-key">Vertical tick on each bar: 48 hours. Rust marks a decision that differs from the specified answer, whether a wrong inclusion or a wrong exclusion; green is a correct inclusion; grey is a correct exclusion. The status text names each.</p><div class="finding" id="queue-finding" aria-live="polite"></div><div class="provenance" role="note" aria-label="Provenance"><span class="segs"><span class="seg">Harbor Dispatch</span><span class="seg">invented teaching cases</span><span class="seg">ages fixed at the teaching snapshot; paid and shipped checks stay active</span><span class="seg" id="queue-state"></span></span></div></div><details class="note"><summary>Inspect all six input rows</summary><div class="note-body"><div class="table-wrap"><table><thead><tr><th scope="col">Order</th><th scope="col">Age at 4 p.m.</th><th scope="col">State</th><th scope="col">Why this case exists</th></tr></thead><tbody><tr><td>A101</td><td>47 hours</td><td>Paid, unshipped</td><td>One hour too early</td></tr><tr><td>A102</td><td>48 hours</td><td>Paid, unshipped</td><td>Exactly at the boundary</td></tr><tr><td>A103</td><td>72 hours</td><td>Canceled</td><td>Canceled, despite its age</td></tr><tr><td>A104</td><td>60 hours</td><td>Shipped</td><td>Already shipped</td></tr><tr><td>A105</td><td>60 hours</td><td>Paid, unshipped</td><td>Eligible order</td></tr><tr><td>A105</td><td>60 hours</td><td>Paid, unshipped</td><td>Repeated copy of the same order</td></tr></tbody></table></div></div></details></figure><div class="rich prose section-prose"><p>The same-count preset returns two copies of A105 while losing A102. Two entries still make the wrong answer. Cases chosen before implementation give the checker something concrete to disagree with.</p></div><details class="note"><summary>Real evidence: a fixture exposes a missing condition</summary><div class="note-body"><p>Early Warning, a Cascadia analytics build, uses a synthetic fixture to check episode construction. Its October row exceeds the forecast range but fails a separate five-report condition. Omitting that condition changes the answer. The fixture establishes behavior for those cases, not detection usefulness. <a href="https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/tests/golden/golden_review_input.csv">Fixture</a> · <a href="https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/tests/golden/golden_expected_review.csv">Expected result</a> · <a href="https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/src/test_golden.py">Harness</a></p></div></details></article>
+<article id="s4" class="section-article"><span class="ghost-numeral" aria-hidden="true">04</span><span class="pill"><span class="section-pill-bars" aria-hidden="true"><span style="height:5px"></span><span style="height:8px"></span><span style="height:11px"></span></span>Experiment 2</span><h2 class="section-heading">4. Give a second agent a separate route to the answer</h2><div class="rich prose section-prose"><p>In this illustration, the first agent omits the cancellation rule. Checking through the same filter repeats that mistake. A second agent receives only the rules and raw cases, without the first agent's implementation or output.</p></div><figure class="lab" aria-labelledby="checker-title"><div class="exhibit-heading"><div><span class="mini-label">EXPERIMENT 2 / THE AGENT BOUNDARY</span><h3 id="checker-title">What does the checking agent receive?</h3></div><button type="button" class="reset" id="reset-checker">Reset experiment ↺</button></div><div class="control-grid two"><label class="control"><input type="checkbox" id="checker-defect" checked><span><b>Inject the canceled-order defect</b><small>The build incorrectly includes A103.</small></span></label><label class="control"><input type="checkbox" id="separate-checker"><span><b>Give the check to a second agent</b><small>Rules and raw cases only; no first implementation or output.</small></span></label></div><div class="branch-source">SIX RAW INPUT ROWS <span>→ two calculation paths</span></div><div class="branch-grid"><div class="branch build-branch"><span class="mini-label">FIRST AGENT / BUILD</span><h4>Produce the queue</h4><p id="build-method"></p><div id="build-orders" class="order-chips"></div></div><div class="branch check-branch"><span class="mini-label">CHECKING ARRANGEMENT</span><h4 id="checking-agent">Original agent checks itself</h4><p id="check-method"></p><div id="check-orders" class="order-chips"></div></div></div><div id="checker-result" class="finding" aria-live="polite"></div><p class="chart-limit">In this seeded case, the separate path catches the omitted cancellation rule. Shared rules, source data and possible reasoning errors remain.</p><div class="provenance" role="note" aria-label="Provenance"><span class="segs"><span class="seg">Harbor Dispatch</span><span class="seg">invented teaching cases</span><span class="seg">illustrated agent behavior; no live model calls or complete-independence claim</span></span></div></figure><div class="rich prose section-prose"><p><strong>The boundary stays:</strong> both agents share the rule and source data, and may make similar reasoning errors. Agreement supports the behavior tested; it does not establish that the rule is right, the source is true or every case is covered. The illustrated agent outcomes are fixed teaching cases, not live model calls or measured success rates.</p></div><details class="note"><summary>Real evidence: a second path names its exclusions</summary><div class="note-body"><p>Early Warning documents which transformations its second path recomputes. It shares exported states and points, and does not repeat candidate fitting or promotion. Its agreement has that stated boundary. <a href="https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/src/validate_measures.py">Scope and exclusions</a></p></div></details></article>
+<article id="s5" class="section-article"><span class="ghost-numeral" aria-hidden="true">05</span><span class="pill"><span class="section-pill-bars" aria-hidden="true"><span style="height:5px"></span><span style="height:8px"></span><span style="height:11px"></span></span>Experiment 3</span><h2 class="section-heading">5. Make a failed check change what gets released</h2><div class="rich prose section-prose"><p>Detecting a problem and stopping release are separate controls. For Harbor Dispatch, the queue must match the known answer and its source must be no more than two hours old.</p></div><figure class="lab" aria-labelledby="release-title"><div class="exhibit-heading"><div><span class="mini-label">EXPERIMENT 3 / THE RELEASE GATE</span><h3 id="release-title">A red check matters only if it changes the next step.</h3></div><button type="button" class="reset" id="reset-release">Reset experiment ↺</button></div><div class="control-grid two"><label class="control"><input type="checkbox" id="release-defect" checked><span><b>Inject the canceled-order defect</b><small>A103 enters the proposed queue.</small></span></label><label class="control"><input type="checkbox" id="enforce-gate" checked><span><b>Enforce the release gate</b><small>Stop when either the rule or freshness check fails.</small></span></label></div><div class="age-control"><label for="source-age">Source age <output id="age-value" for="source-age">1 hour</output></label><p class="age-policy">Release requires source age ≤ 2 hours.</p><input id="source-age" type="range" min="1" max="8" step="1" value="1"><span>1 hour</span><span>8 hours</span></div><div class="release-flow"><div class="check-stack"><div id="rule-check"></div><div id="fresh-check"></div></div><div class="gate-state" id="gate-state"></div><div class="dashboard-state" id="dashboard-state"></div></div><div id="release-result" class="finding" aria-live="polite"></div><div class="provenance" role="note" aria-label="Provenance"><span class="segs"><span class="seg">Harbor Dispatch</span><span class="seg">invented teaching cases</span><span class="seg">simulated current release; no real system is changed</span></span></div></figure><div class="rich prose section-prose"><p>Record the failure, stop, correct and rerun. If an owner accepts an exception, retain the failed criterion and the restriction. Approval does not rewrite a failed check as a pass.</p></div><details class="note"><summary>Real evidence: detection and enforcement can diverge</summary><div class="note-body"><p>Early Warning's D16 records five of seven codes outside the preset coverage band. The build continued with three codes' review rules disabled as prescribed; the separate instruction to stop the build was not enforced. The owner subsequently accepted the outcome. D17 records a corrected rerun after the first run's output had been seen. Matter Ledger, another Cascadia build, had a nineteen-day stall discovered by a reader. These motivate enforced gates, retained run history and freshness monitoring; they do not establish that every control was deployed. <a href="https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/governance/numbers-gate.md">Numbers gate</a> · <a href="https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/governance/decision-record.md">Decision record</a> · <a href="https://github.com/RobbinsAnalytics/cascadia-matter-ledger/commit/6a2f90a10631d528707474da0efb0bbd6ba452f7">Stall incident</a></p></div></details></article>
+<article id="s6" class="section-article"><span class="ghost-numeral" aria-hidden="true">06</span><span class="pill"><span class="section-pill-bars" aria-hidden="true"><span style="height:5px"></span><span style="height:8px"></span><span style="height:11px"></span></span>Commitments</span><h2 class="section-heading">6. Keep five commitments with the build</h2><div class="commitments five-commitments"><span class="mini-label">PROPOSED / FIVE COMMITMENTS</span><ol class="commitment-list"><li><span class="accent" aria-hidden="true"></span><p class="index">01<small>Commitment</small></p><b>An owner-answerable question</b><span class="record">Name the use and owner; record acceptance and restrictions against a version.</span></li><li><span class="accent" aria-hidden="true"></span><p class="index">02<small>Commitment</small></p><b>Expected results before implementation</b><span class="record">Commit the cases and expected answers before the build being tested.</span></li><li><span class="accent" aria-hidden="true"></span><p class="index">03<small>Commitment</small></p><b>A separate calculation path</b><span class="record">Re-derive the published figures; name shared inputs and the scope actually checked.</span></li><li><span class="accent" aria-hidden="true"></span><p class="index">04<small>Commitment</small></p><b>A check that must fail</b><span class="record">Inject a known defect and confirm the named check rejects it.</span></li><li class="inverted"><span class="accent" aria-hidden="true"></span><p class="index">05<small>Commitment</small></p><b>Every run and its disposition</b><span class="record">Keep status, stop reason and resolution, including original and corrected runs.</span><span class="pill">Proposed</span></li></ol></div><div class="rich prose section-prose"><p class="closing-statement"><strong>Confidence comes from evidence that can contradict the implementation, people who review the remaining risks, and a release decision that respects both.</strong></p><p>Across ten modules, the checks developed build by build. The <a href="https://www.robbinsanalytics.com/cascadia-build-by-build/">Build by Build matrix</a> links each recorded check to its evidence.</p></div></article>
+
+      <!-- Felix 6.6, trailing stack list -->
+      <div class="mt-16 border-t border-line pt-10">
+        <p class="eyebrow">Tech stack</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="pill">Static HTML, no framework</span>
+          <span class="pill">sql.js 1.14.2, SQLite in the browser</span>
+          <span class="pill">Felix design system v1.0</span>
+          <span class="pill">VIZ-PRINCIPLES v2.9</span>
+          <span class="pill">Playwright behaviour checks</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Felix 6.11, the CTA banner -->
+<section class="container-x py-20 sm:py-24">
+  <div class="relative isolate overflow-hidden rounded-[2.25rem] bg-[#0b2d2a] text-white grain">
+    <div class="absolute inset-0 -z-10" style="background: radial-gradient(60% 70% at 0% 0%, rgba(63,143,133,.45), transparent 60%), radial-gradient(45% 55% at 100% 100%, rgba(212,243,107,.16), transparent 65%), radial-gradient(40% 40% at 70% 10%, rgba(31,107,99,.5), transparent 70%);"></div>
+    <div class="absolute inset-0 -z-10 opacity-40 cta-grid"></div>
+    <div class="grid lg:grid-cols-[1.1fr_1fr]">
+      <div class="relative z-10 px-7 pt-12 pb-10 sm:px-14 sm:pt-16 lg:pb-16">
+        <span class="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 font-mono text-[0.7rem] tracking-[0.16em] text-white/80 uppercase backdrop-blur">Open build</span>
+        <h2 class="mt-7 font-display text-[clamp(2.4rem,1.6rem+3.2vw,4.1rem)] leading-[1.02] font-semibold tracking-tight">Read the checks, then the <span class="relative inline-block font-serif font-normal italic tracking-[-0.03em] text-[#8fd3c8]">evidence<svg class="absolute -bottom-[0.08em] left-0 h-[0.14em] w-full" viewBox="0 0 120 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 30 2, 60 11, 118 4" fill="none" stroke="#d4f36b" stroke-width="2.5" stroke-linecap="round"/></svg></span><span class="text-accent">.</span></h2>
+        <p class="mt-7 max-w-md text-[1.02rem] leading-relaxed text-white/70">The repository carries the manuscript, the six invented rows, both SQL queries, the behaviour checks that drive every experiment, and the chart review. The three evidence notes link to pinned commits in the Cascadia builds.</p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a class="group btn bg-lime !py-1.5 !pr-1.5 !pl-5 text-ink hover:bg-lime-2" href="https://github.com/RobbinsAnalytics/cascadia-validation-playbook">Build repository <span class="grid h-8 w-8 place-items-center rounded-full bg-ink text-lime transition-transform group-hover:-rotate-12" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 9 3M4 3h5v5"/></svg></span></a>
+          <a class="btn btn-ghost-light" href="https://www.robbinsanalytics.com/cascadia-build-by-build/">Build by Build matrix</a>
+          <a class="btn btn-ghost-light" href="#opening-experiment">Back to the code check</a>
+        </div>
+      </div>
+      <div class="relative min-h-[17rem] sm:min-h-[21rem]" aria-hidden="true">
+        <svg class="absolute right-6 bottom-0 left-6 h-[78%] w-[calc(100%-3rem)] sm:right-12 sm:left-4" viewBox="-10 -20 440 320" preserveAspectRatio="xMidYMax meet">
+          <rect x="10" y="190" width="40" height="110" rx="17" fill="rgba(255,255,255,.11)" stroke="rgba(255,255,255,.14)"/>
+          <rect x="70" y="150" width="40" height="150" rx="17" fill="rgba(255,255,255,.11)" stroke="rgba(255,255,255,.14)"/>
+          <rect x="130" y="170" width="40" height="130" rx="17" fill="rgba(255,255,255,.11)" stroke="rgba(255,255,255,.14)"/>
+          <rect x="190" y="120" width="40" height="180" rx="17" fill="rgba(255,255,255,.11)" stroke="rgba(255,255,255,.14)"/>
+          <rect x="250" y="140" width="40" height="160" rx="17" fill="rgba(255,255,255,.11)" stroke="rgba(255,255,255,.14)"/>
+          <rect x="310" y="90" width="40" height="210" rx="17" fill="rgba(255,255,255,.11)" stroke="rgba(255,255,255,.14)"/>
+          <rect x="370" y="60" width="40" height="240" rx="17" fill="#3f8f85"/>
+          <polyline points="30,190 90,150 150,170 210,120 270,140 330,90 390,60" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 7"/>
+          <g fill="#fff"><circle cx="30" cy="190" r="3.5"/><circle cx="90" cy="150" r="3.5"/><circle cx="150" cy="170" r="3.5"/><circle cx="210" cy="120" r="3.5"/><circle cx="270" cy="140" r="3.5"/><circle cx="330" cy="90" r="3.5"/><circle cx="390" cy="60" r="3.5"/></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="grain relative isolate overflow-hidden bg-ink text-white/70">
+  <div class="absolute inset-0 -z-10" style="background: radial-gradient(50% 60% at 85% 100%, rgba(63,143,133,.28), transparent 70%), radial-gradient(35% 45% at 5% 0%, rgba(31,107,99,.25), transparent 70%);"></div>
+  <div class="container-x relative z-10 grid gap-12 pt-16 pb-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1.3fr_1fr]">
+    <div>
+      <a class="group inline-flex items-center gap-2.5" href="https://www.robbinsanalytics.com/" aria-label="Robbins Analytics home">
+        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" class="shrink-0"><rect x="2" y="12" width="5" height="12" rx="2.5" fill="#d4f36b" opacity="0.55"/><rect x="10.5" y="7" width="5" height="17" rx="2.5" fill="#d4f36b" opacity="0.8"/><rect x="19" y="2" width="5" height="22" rx="2.5" fill="#d4f36b"/></svg>
+        <span class="font-display text-[1.3rem] leading-none tracking-tight whitespace-nowrap text-white"><span class="font-semibold">Robbins</span> <span class="font-serif font-normal italic text-teal-3">Analytics</span><span class="text-lime">.</span></span>
+      </a>
+      <p class="mt-5 max-w-sm text-sm leading-relaxed text-white/60">An independent portfolio project by Aaron Robbins. One invented dispatch rule, a known answer specified before the code, and four experiments that show what a check adds to reading.</p>
+    </div>
+    <div>
+      <p class="font-mono text-[0.7rem] tracking-[0.16em] text-white/60 uppercase">This page</p>
+      <ul class="mt-4 space-y-0.5 text-sm md:mt-5 md:space-y-2.5">
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="#s1">1. Pair every promise with proof</a></li>
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="#s2">2. Where this comes from and why it fits AI</a></li>
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="#s3">3. Remove a control and watch the queue change</a></li>
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="#s4">4. Give a second agent a separate route to the answer</a></li>
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="#s5">5. Make a failed check change what gets released</a></li>
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="#s6">6. Keep five commitments with the build</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="font-mono text-[0.7rem] tracking-[0.16em] text-white/60 uppercase">Provenance</p>
+      <ul class="mt-4 space-y-0.5 text-sm md:mt-5 md:space-y-2.5">
+        <li class="py-1 text-white/65">Harbor Dispatch: six invented input rows, five orders, no real system</li>
+        <li class="py-1 text-white/65">Real evidence pinned to Early Warning e7d1337 and Control Tower 3f07ece</li>
+        <li class="py-1 text-white/65">SQL runs in your browser: sql.js 1.14.2 (SQLite, MIT), loaded on first click</li>
+        <li class="py-1 text-white/65">Manuscript v5, accepted 2026-10-12</li>
+      </ul>
+    </div>
+    <div>
+      <p class="font-mono text-[0.7rem] tracking-[0.16em] text-white/60 uppercase">Elsewhere</p>
+      <ul class="mt-4 space-y-0.5 text-sm md:mt-5 md:space-y-2.5">
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="https://github.com/RobbinsAnalytics/cascadia-validation-playbook">Build repository</a></li>
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="https://www.robbinsanalytics.com/cascadia-build-by-build/">Build by Build matrix</a></li>
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="https://www.robbinsanalytics.com/cascadia.html">Cascadia</a></li>
+        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="https://www.robbinsanalytics.com/">Portfolio home</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container-x relative z-10 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 py-6 text-xs text-white/60">
+    <span>&copy; 2026 Aaron Robbins. Harbor Dispatch is an invented teaching example; the real evidence is in the three notes.</span>
+    <span class="font-mono tracking-wider">promise, then proof</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var h = document.getElementById('site-header');
+  function scrolled() {
+    if (window.scrollY > 0) { h.classList.add('border-ink/10', 'bg-paper/95', 'backdrop-blur-xl'); h.classList.remove('border-transparent'); }
+    else { h.classList.remove('border-ink/10', 'bg-paper/95', 'backdrop-blur-xl'); h.classList.add('border-transparent'); }
+  }
+  window.addEventListener('scroll', scrolled, { passive: true }); scrolled();
+  var mb = document.getElementById('menu-btn'), mm = document.getElementById('mobile-menu');
+  if (mb && mm) {
+    mb.addEventListener('click', function () {
+      var open = mm.hasAttribute('hidden');
+      if (open) { mm.removeAttribute('hidden'); } else { mm.setAttribute('hidden', ''); }
+      mb.setAttribute('aria-expanded', open ? 'true' : 'false');
+      mb.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      mb.querySelector('.menu-bars').classList.toggle('hidden', open);
+      mb.querySelector('.menu-x').classList.toggle('hidden', !open);
+    });
+    mm.addEventListener('click', function (e) { if (e.target.closest('a')) { mb.click(); } });
+  }
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var targets = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (a) { a.removeAttribute('data-active'); a.classList.add('border-transparent', 'text-ink-soft'); a.classList.remove('border-teal', 'font-medium', 'text-teal'); });
+          var a = links[targets.indexOf(e.target)];
+          if (a) { a.setAttribute('data-active', 'true'); a.classList.remove('border-transparent', 'text-ink-soft'); a.classList.add('border-teal', 'font-medium', 'text-teal'); }
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    targets.forEach(function (t) { if (t) io.observe(t); });
+  }
+})();
+</script>
+<script src="assets/dispatch-code.js"></script>
+<script src="assets/playbook.js"></script>
+</body>
+</html>
