@@ -41,6 +41,8 @@
 /* Experiment frames (Felix region: a paper surface inside the white card) */
 .lab { position: relative; margin-top: 2rem; }
 .lab.code-lab { margin-top: 0; }
+/* Arriving by in-page link, the experiment's eyebrow clears the 4.25rem sticky header. */
+#opening-experiment { scroll-margin-top: 5.5rem; }
 .lab {  border-radius: 1.5rem; background: var(--color-paper); padding: 1.25rem; }
 @media (min-width: 640px) { .lab { padding: 1.75rem; } }
 .exhibit-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
@@ -55,7 +57,14 @@
 .control { display: flex; align-items: flex-start; gap: .7rem; min-height: 64px; border: 1px solid var(--color-line); border-radius: 1rem; background: #fff; padding: .9rem; cursor: pointer; transition: border-color .2s, background-color .2s; }
 .control:has(input:checked) { border-color: var(--color-teal-3); background: var(--color-mist-2); }
 .control:has(input:focus-visible) { outline: 2px solid var(--color-teal-2); outline-offset: 3px; }
+.control { position: relative; }
 .control input { flex-shrink: 0; width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--color-teal); }
+.control > span:last-child { padding-right: 2.4rem; }
+/* The state as text, beside the checkbox, so "off" is a word and not only an empty box (panel finding 16). */
+.control .state { position: absolute; top: .8rem; right: .9rem; font: .75rem/1 var(--font-mono); letter-spacing: .1em; color: var(--color-ink-soft); }
+.control .state::after { content: "OFF"; }
+.control:has(input:checked) .state { color: var(--color-teal); }
+.control:has(input:checked) .state::after { content: "ON"; }
 .control b { display: block; font: 600 .9rem/1.45 var(--font-sans); color: var(--color-ink); }
 .control small { display: block; margin-top: .25rem; font: .8rem/1.5 var(--font-sans); color: var(--color-ink-soft); }
 

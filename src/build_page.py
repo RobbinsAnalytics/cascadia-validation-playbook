@@ -58,7 +58,7 @@ PAIRS = [
      "proof": "Can staff identify the right orders and decide what to investigate?", "owner": "Operations owner",
      "risk": "A correct list can still be used for an unapproved decision, such as automatic refunds.", "left": 1, "right": 7},
     {"key": "rule", "level": "Decision rule", "promise": "Paid, unshipped, 48+ hours; not canceled", "check": "Compare with known answers",
-     "proof": "A102 and A105 appear once each. Boundary, exclusion and duplicate cases have fixed expectations.", "owner": "Analytics lead",
+     "proof": "Orders A102 and A105 appear once each. Boundary, exclusion and duplicate cases have fixed expectations.", "owner": "Analytics lead",
      "risk": "The list can look plausible while dropping a required order or adding an ineligible one.", "left": 2, "right": 6},
     {"key": "data", "level": "Data contract", "promise": "One order per ID; source age \u2264 2 hours", "check": "Check inputs and failure handling",
      "proof": "Repeated IDs collapse to one order. Old source data blocks the current release.", "owner": "Technical reviewer",
@@ -186,7 +186,7 @@ def provenance(extra, state_id=None):
 
 
 def control(cid, label, checked=True, sub=""):
-    return ('<label class="control"><input type="checkbox" id="%s"%s><span><b>%s</b>%s</span></label>'
+    return ('<label class="control"><input type="checkbox" id="%s"%s><span class="state" aria-hidden="true"></span><span><b>%s</b>%s</span></label>'
             % (cid, " checked" if checked else "", label, "<small>%s</small>" % sub if sub else ""))
 
 

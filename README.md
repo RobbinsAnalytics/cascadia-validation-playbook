@@ -69,7 +69,7 @@ The missing order is one broken link in the V: “at least 48 hours” did not s
 | Define before building | Promise | Check afterward | Evidence | Proposed owner |
 | --- | --- | --- | --- | --- |
 | Intended use | Help staff review delayed orders | Owner tries the queue | Can staff identify the right orders and decide what to investigate? | Operations owner |
-| Decision rule | Paid, unshipped, 48+ hours; not canceled | Compare with known answers | A102 and A105 appear once each. Boundary, exclusion and duplicate cases have fixed expectations. | Analytics lead |
+| Decision rule | Paid, unshipped, 48+ hours; not canceled | Compare with known answers | Orders A102 and A105 appear once each. Boundary, exclusion and duplicate cases have fixed expectations. | Analytics lead |
 | Data contract | One order per ID; source age ≤ 2 hours | Check inputs and failure handling | Repeated IDs collapse to one order. Old source data blocks the current release. | Technical reviewer |
 
 Work sequence: intended use → decision rule → data contract → implementation → input checks → known-answer checks → owner tryout. Each check traces to its corresponding promise.

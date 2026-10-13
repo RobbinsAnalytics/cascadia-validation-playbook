@@ -92,6 +92,8 @@
         </div>
         <h1 class="mt-5 font-display text-[clamp(2.6rem,1.4rem+4.6vw,5.4rem)] leading-[0.95] font-bold tracking-[-0.045em] text-ink">Validating AI-Assisted <span class="font-serif font-normal italic text-teal tracking-[-0.03em]">Analytics</span><span class="text-teal-3">.</span></h1>
         <p class="mt-7 max-w-2xl text-lg leading-relaxed text-ink-soft sm:text-[1.2rem]">@@subtitle@@</p>
+        <!-- Felix 6.3, text + disc link; the disc points down for an in-page anchor (8.9). Not lime: the aside is the viewport's one lime element. -->
+        <a class="group mt-7 inline-flex min-h-11 items-center gap-3 text-sm font-semibold text-ink" id="hero-try" href="#opening-experiment">Try the SQL check <span class="arrow-btn" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6l3 3 3-3"/></svg></span></a>
       </div>
       <aside class="rounded-3xl bg-lime p-6 text-ink sm:p-7">
         <div class="flex items-center justify-between border-b border-ink/80 pb-4">
@@ -99,7 +101,7 @@
           <span class="h-2.5 w-2.5 rounded-full bg-ink" aria-hidden="true"></span>
         </div>
         <dl>
-          <div class="flex items-baseline justify-between gap-4 border-b border-ink/25 py-3"><dt class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">Status</dt><dd class="text-right text-sm font-semibold">Proposed method</dd></div>
+          <div class="flex items-baseline justify-between gap-4 border-b border-ink/25 py-3"><dt class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">Status</dt><dd class="text-right text-sm font-semibold">Documented practice + proposed roles</dd></div>
           <div class="flex items-baseline justify-between gap-4 border-b border-ink/25 py-3"><dt class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">Example</dt><dd class="text-right text-sm font-semibold">Harbor Dispatch, invented</dd></div>
           <div class="flex items-baseline justify-between gap-4 border-b border-ink/25 py-3"><dt class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">Experiments</dt><dd class="text-right text-sm font-semibold">Four, in the browser</dd></div>
           <div class="flex items-baseline justify-between gap-4 py-3"><dt class="font-mono text-[0.7rem] tracking-[0.16em] text-ink-soft uppercase">Real evidence</dt><dd class="text-right text-sm font-semibold">Three pinned notes</dd></div>
@@ -214,7 +216,7 @@
       <p class="font-mono text-[0.7rem] tracking-[0.16em] text-white/60 uppercase">Provenance</p>
       <ul class="mt-4 space-y-0.5 text-sm md:mt-5 md:space-y-2.5">
         <li class="py-1 text-white/65">Harbor Dispatch: six invented input rows, five orders, no real system</li>
-        <li class="py-1 text-white/65">Real evidence pinned to Early Warning e7d1337 and Control Tower 3f07ece</li>
+        <li class="py-1 text-white/65">Real evidence pinned to Early Warning e7d1337 and Matter Ledger 6a2f90a</li>
         <li class="py-1 text-white/65">SQL runs in your browser: sql.js 1.14.2 (SQLite, MIT), loaded on first click</li>
         <li class="py-1 text-white/65">Manuscript v5, accepted 2026-10-12</li>
       </ul>
@@ -254,6 +256,10 @@
       mb.querySelector('.menu-x').classList.toggle('hidden', !open);
     });
     mm.addEventListener('click', function (e) { if (e.target.closest('a')) { mb.click(); } });
+    // Escape closes the open menu and returns focus to the button that opened it.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !mm.hasAttribute('hidden')) { mb.click(); mb.focus(); }
+    });
   }
   var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
   var targets = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
