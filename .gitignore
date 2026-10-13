@@ -1,0 +1,16 @@
+# Build-time toolchain for the Felix class strings (Tailwind v4 CLI). The
+# compiled docs/assets/felix.css is committed; the toolchain is not.
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Per-run scratch output of the checks. The two full-page renders the gate
+# wants are written to docs/renders/ and committed deliberately.
+checks/out/
+
+# OS noise
+Thumbs.db
+.DS_Store
