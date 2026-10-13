@@ -1,0 +1,15 @@
+{
+  "label": "Harbor Dispatch",
+  "kind": "Fictional teaching example. Deliberately selected cases, not operational evidence.",
+  "minimumAgeHours": 48,
+  "maximumSourceAgeHours": 2,
+  "expectedIds": ["A102", "A105"],
+  "rows": [
+    {"id":"A101","age":47,"paid":true,"shipped":false,"canceled":false,"note":"One hour too early"},
+    {"id":"A102","age":48,"paid":true,"shipped":false,"canceled":false,"note":"Exactly at the boundary"},
+    {"id":"A103","age":72,"paid":true,"shipped":false,"canceled":true,"note":"Canceled, despite its age"},
+    {"id":"A104","age":60,"paid":true,"shipped":true,"canceled":false,"note":"Already shipped"},
+    {"id":"A105","age":60,"paid":true,"shipped":false,"canceled":false,"note":"Eligible order"},
+    {"id":"A105","age":60,"paid":true,"shipped":false,"canceled":false,"note":"Repeated copy of the same order"}
+  ]
+}

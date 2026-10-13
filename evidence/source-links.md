@@ -1,0 +1,14 @@
+[scope]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/README.md
+[prereg]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/governance/pre-registration.md
+[decisions]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/governance/decision-record.md
+[fixture-input]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/tests/golden/golden_review_input.csv
+[fixture-expected]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/tests/golden/golden_expected_review.csv
+[fixture-test]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/src/test_golden.py
+[workload]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/data/conformed/review_workload.csv
+[second-path]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/src/validate_measures.py
+[validation]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/governance/validation_report.md
+[register]: https://github.com/RobbinsAnalytics/cascadia-controltower/blob/3f07ece9e2beb42a79766b3f5d0da655a2116f73/src/build_metric_register.py
+[panel]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/governance/chart-review.md
+[numbers-gate]: https://github.com/RobbinsAnalytics/cascadia-early-warning/blob/e7d1337ff1d5ab1d1f88f0fa018cae884f737676/governance/numbers-gate.md
+[incident]: https://github.com/RobbinsAnalytics/cascadia-matter-ledger/commit/6a2f90a10631d528707474da0efb0bbd6ba452f7
+[build-matrix]: https://www.robbinsanalytics.com/cascadia-build-by-build/
