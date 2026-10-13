@@ -39,9 +39,12 @@ failure, because the author block may legitimately carry none.
 
 **Expected IDs come from `docs/assets/dispatch-scenario.json` and are never
 derived from the query under test.** The displayed SQL is the executed SQL:
-`docs/assets/dispatch-code.js` holds both query strings and the only
-difference between them is `>` versus `>=` on one line. The check compares
-IDs and multiplicity, not counts. The defective line is not highlighted until
+`docs/assets/dispatch-code.js` holds both query strings. The defective one
+carries two rule mismatches, `>` where the rule says at least (line 7, and
+the lesson text names that line) and no clause collapsing repeated IDs; the
+correction changes the operator and adds `GROUP BY order_id`, and nothing
+else differs (D14). The defective run returns two rows, the expected count,
+with the wrong IDs. The check compares IDs and multiplicity, not counts. The defective line is not highlighted until
 a run; the correction button is disabled until a run; failed and corrected
 runs both stay in the visible history; each experiment resets independently.
 

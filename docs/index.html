@@ -124,7 +124,7 @@
 <!-- Experiment 0 sits in the hook position, above the fold of the body -->
 <section class="container-x pt-6">
   <div class="rounded-[1.75rem] bg-white p-5 sm:p-10">
-<figure class="lab code-lab" id="opening-experiment" aria-labelledby="opening-title"><div class="exhibit-heading"><div><span class="mini-label">EXPERIMENT 0 / INVENTED HARBOR DISPATCH CASE</span><h3 id="opening-title">Read the code. Then check the answer.</h3></div><button type="button" class="reset" id="reset-opening">Reset experiment ↺</button></div><p class="opening-rule"><b>The rule:</b> include paid, unshipped orders <strong>at least 48 hours old</strong>. Exclude cancellations and repeated IDs.</p><p class="code-invite">Inspect the code for a mismatch with that rule. Then run the check.</p><div class="code-layout"><div class="code-pane"><span class="mini-label" id="code-state">IMPLEMENTATION / SQL</span><pre aria-label="SQL query displayed and executed by this experiment"><code id="opening-code">WITH eligible_orders AS (
+<figure class="lab code-lab" id="opening-experiment" aria-labelledby="opening-title"><div class="exhibit-heading"><div><span class="mini-label">EXPERIMENT 0 / INVENTED HARBOR DISPATCH CASE</span><h3 id="opening-title">Read the code. Then check the answer.</h3></div><button type="button" class="reset" id="reset-opening">Reset experiment ↺</button></div><p class="opening-rule"><b>The rule:</b> include paid, unshipped orders <strong>at least 48 hours old</strong>. Exclude cancellations and repeated IDs.</p><p class="code-invite">Inspect the code for mismatches with that rule. Then run the check.</p><div class="code-layout"><div class="code-pane"><span class="mini-label" id="code-state">IMPLEMENTATION / SQL</span><pre aria-label="SQL query displayed and executed by this experiment"><code id="opening-code">WITH eligible_orders AS (
     SELECT
         order_id
     FROM dispatch_orders
@@ -132,12 +132,9 @@
       AND shipped = 0
       AND age_hours &gt; 48
       AND canceled = 0
-),
-unique_orders AS (
-    SELECT DISTINCT order_id
-    FROM eligible_orders
 )
-SELECT order_id FROM unique_orders
+SELECT order_id
+FROM eligible_orders
 ORDER BY order_id;</code></pre></div><div class="answer-pane"><span class="mini-label">EXPECTED / SPECIFIED SEPARATELY</span><strong>A102 · A105</strong><p>A102 is exactly 48 hours old. A105 is 60 hours old. Each belongs once.</p><div id="opening-result" class="opening-result" aria-live="polite"><b>Not run yet</b><p>The expected IDs are fixed before this implementation is checked.</p></div></div></div><div class="opening-actions"><button type="button" class="btn btn-primary" id="run-opening" data-engine="vendor/sql.js/sql-asm.js">Run the known-answer check</button><button type="button" class="btn btn-outline" id="fix-opening" disabled>Correct and rerun</button></div><p class="chart-limit" id="opening-lesson">The check compares order IDs and multiplicity, not just the total. Reading and testing supply different evidence.</p><details class="note"><summary>Inspect the six invented input rows</summary><div class="note-body"><div class="table-wrap"><table><thead><tr><th scope="col">Order</th><th scope="col">Age</th><th scope="col">State</th><th scope="col">Purpose</th></tr></thead><tbody><tr><td>A101</td><td>47 hours</td><td>Paid, unshipped</td><td>One hour too early</td></tr><tr><td>A102</td><td>48 hours</td><td>Paid, unshipped</td><td>Exactly at the boundary</td></tr><tr><td>A103</td><td>72 hours</td><td>Canceled</td><td>Canceled, despite its age</td></tr><tr><td>A104</td><td>60 hours</td><td>Shipped</td><td>Already shipped</td></tr><tr><td>A105</td><td>60 hours</td><td>Paid, unshipped</td><td>Eligible order</td></tr><tr><td>A105</td><td>60 hours</td><td>Paid, unshipped</td><td>Repeated copy of the same order</td></tr></tbody></table></div></div></details><div class="provenance" role="note" aria-label="Provenance"><span class="segs"><span class="seg">Harbor Dispatch</span><span class="seg">invented teaching cases</span><span class="seg">displayed code executes locally; expected IDs are separate from the implementation</span></span></div></figure>
   </div>
 </section>

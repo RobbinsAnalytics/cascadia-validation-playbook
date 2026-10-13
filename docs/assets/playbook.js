@@ -1,6 +1,8 @@
 /* Interactions for the validation playbook. Ported from the accepted v5
    package's scenario-interactions.js with its semantics intact:
-   - the displayed SQL is the executed SQL (DispatchExample.buggy / .fixed);
+   - the displayed SQL is the executed SQL (DispatchExample.buggy / .fixed); the
+     defective query carries two rule mismatches (the boundary operator and no
+     dedup clause) and the correction changes exactly those two things (D14);
    - the expected IDs come from the embedded scenario JSON, never the query;
    - the defective line is not highlighted until a run, the correction button
      is disabled until a run, and every run stays in the visible history;
@@ -38,7 +40,9 @@
 
   function renderOpening(loading) {
     const query = openingFixed ? globalThis.DispatchExample.fixed : globalThis.DispatchExample.buggy;
-    $('opening-code').innerHTML = query.split('\n').map(line => `<span class="code-line ${openingRuns.length && line.includes('age_hours') ? 'code-change' : ''}">${escapeCode(line) || ' '}</span>`).join('');
+    // After a run, the boundary line is marked in both states; the GROUP BY line exists only in the
+    // corrected state. In the defective state the missing clause has no line to mark.
+    $('opening-code').innerHTML = query.split('\n').map(line => `<span class="code-line ${openingRuns.length && (line.includes('age_hours') || line.startsWith('GROUP BY')) ? 'code-change' : ''}">${escapeCode(line) || ' '}</span>`).join('');
     $('code-state').textContent = openingFixed ? 'CORRECTED IMPLEMENTATION / SQL' : 'IMPLEMENTATION / SQL';
     document.querySelector('.code-pane').classList.toggle('corrected', openingFixed);
     $('fix-opening').disabled = !openingRuns.length || openingFixed || !!loading || engineFailed;
@@ -57,10 +61,10 @@
     }
     const latest = openingRuns.at(-1);
     result.className = 'opening-result ' + (latest.pass ? 'success' : 'warning');
-    result.innerHTML = `<span class="mini-label">ACTUAL OUTPUT</span><strong>${latest.actual.join(' · ') || 'No orders'}</strong><b>${latest.pass ? '✓ PASS · selected cases match' : '× FAIL · A102 is missing'}</b><p>${latest.pass ? '48 ≥ 48 is true. A102 now appears once, alongside A105.' : '48 &gt; 48 is false. The code excludes an order that the requirement includes.'}</p><ol class="opening-history" aria-label="Runs in this experiment">${openingRuns.map((r, i) => `<li>Run ${i + 1}: ${r.pass ? 'PASS, corrected boundary' : 'FAIL, A102 missing'}</li>`).join('')}</ol>`;
+    result.innerHTML = `<span class="mini-label">ACTUAL OUTPUT</span><strong>${latest.actual.join(' · ') || 'No orders'}</strong><b>${latest.pass ? '✓ PASS · selected cases match' : '× FAIL · same count, wrong orders'}</b><p>${latest.pass ? '48 ≥ 48 is true, and GROUP BY collapses the repeated row. A102 now appears once, alongside A105.' : '48 &gt; 48 is false, so A102 is excluded, and nothing collapses the repeated A105. Two rows match the expected count and not the expected IDs.'}</p><ol class="opening-history" aria-label="Runs in this experiment">${openingRuns.map((r, i) => `<li>Run ${i + 1}: ${r.pass ? 'PASS, boundary and dedup corrected' : 'FAIL, A102 missing, A105 repeated'}</li>`).join('')}</ol>`;
     $('opening-lesson').textContent = latest.pass
-      ? 'The same expected answer rejects the defect and accepts the correction. That is evidence for these cases, not a guarantee about all code.'
-      : 'Line 7 is easy to inspect here. Now imagine 400 lines across six files, written overnight by an agent, and a review on Friday afternoon. The same known-answer check still catches this boundary error.';
+      ? 'The same expected answer rejects the defects and accepts the correction. That is evidence for these cases, not a guarantee about all code.'
+      : 'Line 7 is easy to inspect here, and the missing GROUP BY has no line to inspect at all. Now imagine 400 lines across six files, written overnight by an agent, and a review on Friday afternoon. The same known-answer check still catches both errors.';
   }
 
   function executeOpening(engine) {

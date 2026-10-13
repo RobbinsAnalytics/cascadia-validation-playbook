@@ -241,3 +241,36 @@ condition. Reported as an estate finding, not fixed here: the kit's resolver
 is canon.
 
 **Carried by:** `CLAUDE.md`.
+
+## D14 · The opening query carries two defects, not one (Aaron, at the gate)
+
+The accepted v5 package's opening query had one defect, `>` for "at least",
+and deduplicated with `SELECT DISTINCT`; its checker enforced that the
+operator was the sole difference between the two queries. At the gate on
+2026-10-12 Aaron asked for a second, equally ordinary defect: the dedup
+clause is missing. The defective query now has no DISTINCT and no GROUP BY,
+so it returns A105 twice; the correction changes the operator and adds
+`GROUP BY order_id`, and nothing else differs.
+
+Why it is better, not only different: the defective run returns **two rows,
+the expected count, with the wrong IDs**, which is the page's central
+argument (the same-count preset in Experiment 1) demonstrated before the
+reader reaches Experiment 1; and the two defects trace to two of the three V
+pairs (the boundary to the decision rule, the dedup to the data contract's
+"one order per ID"). The manuscript is unchanged: "the missing order is one
+broken link in the V" remains true. The teaching cost is stated on the page:
+in the defective state only line 7 can be marked, because a missing clause
+has no line, and the lesson text says so.
+
+What changed: `dispatch-code.js` (both strings; line 7 is still the boundary
+line and the build asserts it), the experiment's result, history and lesson
+wording, the corrected-state highlight (line 7 and the GROUP BY line), the
+gate's assertions, the README's generated opening text, `CLAUDE.md`. Not
+changed: the scenario, the expected IDs, the manuscript, the exhibits, the
+panel record (Experiment 0 is outside its scope).
+
+*Counterfactual:* keep one defect, or show GROUP BY without making it a
+defect, which teaches nothing the reader has to find.
+
+**Carried by:** `docs/assets/dispatch-code.js`; `docs/assets/playbook.js`;
+`src/build_page.py`; `checks/check_page.py`.
