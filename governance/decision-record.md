@@ -283,3 +283,25 @@ corrections, which hides the step where fixing one thing changes the count.
 
 **Carried by:** `docs/assets/dispatch-code.js`; `docs/assets/playbook.js`;
 `src/build_page.py`; `checks/check_page.py`.
+
+---
+
+## Published · 2026-10-12
+
+- **Page:** `https://www.robbinsanalytics.com/cascadia-validation-playbook/`,
+  GitHub Pages from `main` at `/docs`, repository
+  `RobbinsAnalytics/cascadia-validation-playbook`, `main` at `6d9d6d5`, tag
+  `v1.0` on the same commit. The behaviour gate passed against the served
+  page at 390 and 1440 px, and the engine was fetched only after the first
+  click of the run button from the served path.
+- **Site:** `RobbinsAnalytics.github.io` `main` at `4be29b0` carries the home
+  card, the family-page sentence, the Projects menu entry, the charter's
+  closing sentence, the redirect stub `projects/cascadia-validation-playbook.html`
+  and the eighteenth OG card; `312eb30` adds the runner-generated visual
+  baselines for the home and family pages, which that change moved by
+  design. The site's own Action is the deploy's receipt (`build.txt` at the
+  edge returned `4be29b0`, then `312eb30`); its result is recorded in the
+  Phase 2 report.
+- **Gate changes recorded above as D14 and in the commit log:** the lime card
+  dropped its in-page links; the opening query carries two defects corrected
+  one click at a time.
