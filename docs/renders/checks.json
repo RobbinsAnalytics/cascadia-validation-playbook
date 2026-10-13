@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-12",
+  "target": "http://127.0.0.1:8743/index.html",
+  "results": [
+    {
+      "mode": "http",
+      "width": 320,
+      "scrollWidth": 320,
+      "minExhibitFont": 12,
+      "minLabFont": 12,
+      "openingStates": 3,
+      "queueCases": 8,
+      "checkerCases": 4,
+      "releaseCases": 32,
+      "sqlExecutionsObserved": 2
+    },
+    {
+      "mode": "http",
+      "width": 390,
+      "scrollWidth": 390,
+      "minExhibitFont": 12,
+      "minLabFont": 12,
+      "openingStates": 3,
+      "queueCases": 8,
+      "checkerCases": 4,
+      "releaseCases": 32,
+      "sqlExecutionsObserved": 2
+    },
+    {
+      "mode": "http",
+      "width": 768,
+      "scrollWidth": 768,
+      "minExhibitFont": 12,
+      "minLabFont": 12,
+      "openingStates": 3,
+      "queueCases": 8,
+      "checkerCases": 4,
+      "releaseCases": 32,
+      "sqlExecutionsObserved": 2
+    },
+    {
+      "mode": "http",
+      "width": 1050,
+      "scrollWidth": 1050,
+      "minExhibitFont": 12,
+      "minLabFont": 12,
+      "openingStates": 3,
+      "queueCases": 8,
+      "checkerCases": 4,
+      "releaseCases": 32,
+      "sqlExecutionsObserved": 2
+    },
+    {
+      "mode": "http",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "minExhibitFont": 12,
+      "minLabFont": 12,
+      "openingStates": 3,
+      "queueCases": 8,
+      "checkerCases": 4,
+      "releaseCases": 32,
+      "sqlExecutionsObserved": 2
+    },
+    {
+      "mode": "file",
+      "width": 390,
+      "scrollWidth": 390,
+      "minExhibitFont": 12,
+      "minLabFont": 12,
+      "openingStates": 3,
+      "queueCases": 8,
+      "checkerCases": 4,
+      "releaseCases": 32,
+      "sqlExecutionsObserved": 2
+    },
+    {
+      "mode": "file",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "minExhibitFont": 12,
+      "minLabFont": 12,
+      "openingStates": 3,
+      "queueCases": 8,
+      "checkerCases": 4,
+      "releaseCases": 32,
+      "sqlExecutionsObserved": 2
+    }
+  ],
+  "errors": [],
+  "scope": "Behaviour gate of the page as served and as opened from disk. Not a reading panel, not an accessibility audit."
+}
