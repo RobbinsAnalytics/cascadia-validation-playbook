@@ -1,0 +1,17 @@
+{
+  "package": "sql.js",
+  "version": "1.14.2",
+  "source": "https://registry.npmjs.org/sql.js/-/sql.js-1.14.2.tgz",
+  "integrity": "sha512-3ZGPovObMFrdw79zrUHbfdE/DLIsy8jdNdssmMSQuRAymedU6q84asPt0kgiqrdMYlPegDItiIMfmIXzZnYFcw==",
+  "verified": "2026-10-12: the tarball was fetched again from the registry by this repository's build session; its sha512 matched this integrity string and dist/sql-asm.js matched the copy inherited from the accepted v5 package byte for byte.",
+  "files": {
+    "sql-asm.js": "82344159a161e30e1c012587a59567adc02f537cd5f376270eff88c564eed0fd",
+    "LICENSE": "60a3f6e4d7b29b4321359e683b36cf198d24f58e24582070f56e6fa89d5ee2be"
+  },
+  "build_chosen": "sql-asm.js (asm.js, 1,355,169 bytes), loaded by the page on the first click of the run button and never on page load.",
+  "build_not_chosen": {
+    "files": "dist/sql-wasm.js (46,535 bytes) + dist/sql-wasm.wasm (658,410 bytes); sha256 f1c84000dbc856c9d87f4f3aabc4d3654bd436165db4be3da13751db3a9c20d7 and 38c14f6e379210bc942bdc4ebca44e7bfdb4318ecc1c72ca666a28fdce96670a",
+    "why_not": "About half the bytes, but the .wasm is fetched by the loader and a page opened from file:// cannot fetch a second file in Chromium. The gate review opens docs/index.html from disk, and the page is required to run there as well as when served, so the single-file asm.js build is the one that works on both paths. Loading it on first click means the 1.36 MB costs nothing until a reader asks for the check."
+  },
+  "use": "Local SQLite engine for the displayed SQL query. The exact displayed string is what the engine executes; the expected IDs come from dispatch-scenario.json, never from the query."
+}
