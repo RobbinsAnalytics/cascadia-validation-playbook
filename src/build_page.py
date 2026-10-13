@@ -335,10 +335,6 @@ def md_widgets(scenario, buggy, fixed):
 
 # ---------------------------------------------------------------- page assembly
 
-ARROW_DOWN = ('<span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-lime transition-transform group-hover:-rotate-12" aria-hidden="true">'
-              '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M3 6l3 3 3-3"/></svg></span>')
-
-
 def render_section(n, section, w, links):
     parts = []
     prose = []
@@ -398,13 +394,14 @@ def build():
     sections_html = sections_html.replace('<p><strong>Confidence comes from evidence', '<p class="closing-statement"><strong>Confidence comes from evidence', 1)
 
     toc = "\n".join('            <li><a class="-ml-px block border-l-2 py-1.5 pl-4 text-sm transition-colors border-transparent text-ink-soft hover:text-ink" href="#s%d">%02d %s</a></li>' % (n, n, TOC_LABELS[n - 1]) for n in range(1, 7))
-    aside = "\n".join('          <li><a class="group flex items-center justify-between gap-4 border-b border-ink py-3 text-sm font-semibold" href="#s%d"><span>%02d %s</span>%s</a></li>' % (n, n, TOC_LABELS[n - 1], ARROW_DOWN) for n in range(1, 7))
+    # The lime aside carries no in-page links (Aaron, 2026-10-12, at the gate): the sticky
+    # TOC already has them and the card was taking the header's height.
     footer = "\n".join('        <li><a class="group inline-flex min-h-10 items-center gap-1.5 py-1 text-white/65 transition-colors hover:text-white md:min-h-0" href="#s%d">%s</a></li>' % (n, esc(sections[n]["heading"])) for n in range(1, 7))
 
     tokens = {
         "title": esc(title), "subtitle": inline_html(subtitle, links), "meta_description": esc(META_DESCRIPTION),
         "hook_question": "<p>%s</p>" % inline_html(hook_question, links), "hook_para": "<p>%s</p>" % inline_html(hook_para, links),
-        "opening": w["opening"], "sections": sections_html, "toc": toc, "aside_anchors": aside, "footer_anchors": footer,
+        "opening": w["opening"], "sections": sections_html, "toc": toc, "footer_anchors": footer,
         "scenario_json": json.dumps({"scenario": scenario, "pairs": PAIRS}, ensure_ascii=False).replace("</", "<\\/"),
         "site_url": SITE_URL, "cascadia_url": CASCADIA_URL, "page_url": PAGE_URL, "repo_url": REPO_URL, "thumb_url": THUMB_URL,
         "build_matrix_url": links["build-matrix"],
