@@ -74,7 +74,8 @@ copy of the design system, which is referenced by path and commit in
 Bare `python` on this machine is an empty 3.14.7. Name
 `C:\Users\Ajayr\AppData\Local\Python\pythoncore-3.14-64\python.exe` for
 anything that imports Playwright; the git hooks need only the standard
-library and resolve `python3`, `python`, `py` themselves.
+library, resolve `python3`, `python`, `py` themselves and, since pre-commit
+template v2.1.0, run each candidate before trusting it.
 
 `checks/check_page.py` is the behaviour gate: it drives every experiment at
 five widths from a local static server and from `file://`, and fails on any
@@ -95,23 +96,30 @@ whitespace gate, and fails closed. **It is inert until
 `git config core.hooksPath .githooks` has been run in this clone.** Run
 `python .claude/hooks/hook_test_matrix.py` to confirm the guards behave.
 
-This repo's root commit was made from a session rooted at `C:\Projects`, so
-the hook-manifest entry in `cascadia-standards/governance/hook_manifest.json`
-is owed to a session rooted there and is not written from here.
+This repo's root commit was made from a session rooted at `C:\Projects`. Its
+entry in `cascadia-standards/governance/hook_manifest.json` was written from a
+session rooted there on 2026-10-13 and is never written from here;
+`check_hook_drift.py` is the authority on this repo's guard state, not this
+file.
 
-**Two things that blocked commits on 2026-10-12, both by the gate working as
-designed.** First, the hook's shell resolves `python3` before `python`, and on
-this machine `python3` is the Microsoft Store alias stub, which prints
-"Python was not found" and exits non-zero, so every commit is refused until a
-real interpreter is ahead of it: prefix the commit's PATH with
-`C:\Users\Ajayr\AppData\Local\Python\bin`. Second, the secret scan's tier-1
+**Two things blocked commits on 2026-10-12, both by the gate working as
+designed; the first is closed.** First, the hook's shell resolved `python3`
+before `python`, and on this machine `python3` was the Microsoft Store alias
+stub, which printed "Python was not found" and exited non-zero, so every
+commit was refused until a real interpreter was ahead of it. Closed
+2026-10-14: the stub is removed from the WindowsApps folder and pre-commit
+template v2.1.0 runs each candidate with `-c pass` before trusting it, so no
+PATH prefix is needed. Second, the secret scan's tier-1
 AWS-key shape matched a base64 run inside `docs/vendor/sql.js/sql-asm.js`, a
 false positive in a compiled blob that is hash-pinned and cannot carry a
 pragma; `docs/vendor/.gitattributes` declares that one file binary so the
 scanner skips it, and the root `.gitattributes` stays the kit's verbatim
-copy. Neither is a reason for `--no-verify`.
+copy. Neither was a reason for `--no-verify`.
 
-A stale `.git/index.lock` is benign: delete it and retry.
+A stale `.git/index.lock` is benign: delete it and retry, but only once no
+git process is running and the lock is older than `.git/index`, or than a few
+minutes. A lock that is neither belongs to a commit still in flight.
+`git update-index --refresh` reveals a stale one; `git status` does not.
 
 ## Publishing
 
